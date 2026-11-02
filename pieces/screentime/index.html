@@ -32,7 +32,8 @@ function VW(id, word, n = 1) {
   const hits = L.words.filter((x) => x.w.toLowerCase().replace(/[^a-z']/g, '').startsWith(w));
   return (hits[n - 1] || hits[0] || { t0: L.t0 }).t0;
 }
-const gap = (a, b) => (VL(a).t1 + VL(b).t0) / 2;   // the middle of the pause between two lines
+const snap8 = (t) => Math.round(t / 0.25) * 0.25;   // the 8th grid at 120 BPM
+const gap = (a, b) => snap8((VL(a).t1 + VL(b).t0) / 2);   // the middle of the pause between two lines, on the grid
 const DURATION = Math.round(VOICE.duration * FPS) / FPS;
 const NFRAMES = Math.round(DURATION * FPS);
 const LOOP_T = NFRAMES / FPS;
@@ -42,7 +43,7 @@ const CX = 500;
 
 // ---- the clock: era boundaries in the pauses; the payoff (glow -> sun) in the silence after "scattered focus"
 const T1 = gap('open', 'swipe'), T2 = gap('swipe', 'dopa'), T3 = gap('dopa', 'brake'), T4 = gap('brake', 'night');
-const T5 = gap('night', 'cost'), T6 = VL('cost').t1 + 1.25, T7 = gap('good', 'end');
+const T5 = gap('night', 'cost'), T6 = snap8(VL('cost').t1 + 1.25), T7 = gap('good', 'end');
 const ERA_T = [0, T1, T2, T3, T4, T5, T6, T7, DURATION];
 const ERA_FN = [() => sceneRoom(false), () => sceneSwipe(), () => sceneDopa(), () => sceneBrakes(), () => sceneNight(), () => sceneCost(), () => sceneMorning(), () => sceneRoom(true)];
 const ERA_LIST = ERA_FN.map((f, i) => [ERA_T[i], ERA_T[i + 1], f]);
@@ -1337,15 +1338,16 @@ const phoneInner = () => rrectPts(PH.x - PH.w / 2 + 24, PH.y - PH.h / 2 + 70, PH
 
 // ---- era 1: every swipe is a tiny gamble
 const FEED = ['meh', 'meh', 'wow', 'meh', '?'];
-function feedCard(kind, x, y, w, h, key) {
+function feedCard(kind, x, y, w, h, key, sTop = -1e9, sBot = 1e9) {
+  const lab = y + h * 0.36 > sTop + 30 && y + h * 0.36 < sBot - 10;
   const P = rrectPts(x - w / 2, y - h / 2, w, h, 14, 5);
   gfill(P, SK.sheet, { off: [4, 4], key: key + 'f' }); gline(P, { closed: true, w: 3.5, key: key + 'o', second: false });
-  if (kind === 'meh') { graphiteScribble(x, y - 20, w * 0.55, h * 0.4, key + 'sc'); handLetter('meh', x, y + h * 0.36, 44, { col: SK.graph, key: key + 'l' }); }
+  if (kind === 'meh') { graphiteScribble(x, y - 20, w * 0.55, h * 0.4, key + 'sc'); if (lab) handLetter('meh', x, y + h * 0.36, 44, { col: SK.graph, key: key + 'l' }); }
   else if (kind === 'wow') {
     for (let i = 0; i < 10; i++) { const a = i / 10 * TAU + B * 0.1; gline([[x + Math.cos(a) * 70, y - 20 + Math.sin(a) * 70], [x + Math.cos(a) * 110, y - 20 + Math.sin(a) * 110]], { w: 4, key: key + 'r' + i, second: false }); }
     const S = loopPts(x, y - 20, 58, 58, 0.08); scribbleFill(S, SK.hilite, { key: key + 'sf', gap: 9, w: 3.6, base: 0.5 }); gline(S, { w: 4, key: key + 'so' });
-    handLetter('WOW!', x, y + h * 0.36, 52, { face: 'marker', key: key + 'l' });
-  } else handLetter('?', x, y, 140, { col: SK.graph, key: key + 'q' });
+    if (lab) handLetter('WOW!', x, y + h * 0.36, 52, { face: 'marker', key: key + 'l' });
+  } else if (y > sTop + 60 && y < sBot - 60) handLetter('?', x, y, 140, { col: SK.graph, key: key + 'q' });
 }
 function sceneSwipe() {
   const cu = TIMELINE.cues;
@@ -1358,7 +1360,8 @@ function sceneSwipe() {
   gfill(inner, '#fff6c8', { off: [0, 0], key: 'phs' }); scribbleFill(inner, SK.hilite, { key: 'phsc', gap: 13, w: 3.5, base: 0.35 });
   ctx.save(); gclip(inner);
   const cardH = 440, step = 520, top = PH.y - 30;
-  FEED.forEach((k, i) => { const y = top + i * step - off * step; if (y > PH.y - 800 && y < PH.y + 800) feedCard(k, PH.x, y, PH.w - 110, cardH, 'card' + i); });
+  const sTop = PH.y - PH.h / 2 + 70, sBot = PH.y + PH.h / 2 - 70;   // only cards inside the screen (their labels too)
+  FEED.forEach((k, i) => { const y = top + i * step - off * step; if (y + cardH / 2 > sTop && y - cardH / 2 < sBot) feedCard(k, PH.x, y, PH.w - 110, cardH, 'card' + i, sTop, sBot); });
   ctx.restore();
   gline(body, { closed: true, w: 6, key: 'pho' }); gline(inner, { closed: true, w: 3, key: 'phi', second: false });
   gline([[PH.x - 40, PH.y - PH.h / 2 + 36], [PH.x + 40, PH.y - PH.h / 2 + 36]], { w: 5, key: 'spk', second: false });
@@ -1913,8 +1916,8 @@ async function buildScore(sampleRate = 48000, part = 'mix', normIn = null) {
   [cu.sleep, cu.play, cu.faces].forEach((t, i) => chime(t + 0.05, [nz(['Fs5', 'A5', 'D6'][i])], 0.04, -0.2 + i * 0.2));   // the three ticks
   each(T6 + 1.0, T7, E8, (t, k) => { if (k % 2 === 0 || k % 8 === 5) pluck(t, nz(['D4', 'Fs4', 'A4', 'D5', 'A4', 'Fs4', 'E4', 'Fs4'][k % 8]), 0.04, Math.sin(k) * 0.3, 0.35, 2600, 0.25); if (k % 4 === 0) bass(t, nz(Math.floor(k / 8) % 2 ? 'A1' : 'D2'), 0.11); });
   // balance: back to the opening hum, in major, Sam's motif, fading
-  pad(T7, END, ['D3', 'A3', 'Fs4'], 0.032, { type: 'triangle', cut: 800, att: 0.3, rel: 1.2 });
-  SAM(cu.balance + 0.6, 0.14, [['D4', 0], ['A4', E8], ['D5', BEAT]]);
+  pad(T7, END, ['D3', 'A3', 'Fs4'], 0.014, { type: 'triangle', cut: 800, att: 0.3, rel: 1.2 });
+  SAM(cu.balance + 0.6, 0.09, [['D4', 0], ['A4', E8], ['D5', BEAT]]);
 
   // ================= SFX =================
   to = 's';

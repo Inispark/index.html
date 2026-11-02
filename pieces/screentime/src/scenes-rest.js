@@ -6,15 +6,16 @@ const phoneInner = () => rrectPts(PH.x - PH.w / 2 + 24, PH.y - PH.h / 2 + 70, PH
 
 // ---- era 1: every swipe is a tiny gamble
 const FEED = ['meh', 'meh', 'wow', 'meh', '?'];
-function feedCard(kind, x, y, w, h, key) {
+function feedCard(kind, x, y, w, h, key, sTop = -1e9, sBot = 1e9) {
+  const lab = y + h * 0.36 > sTop + 30 && y + h * 0.36 < sBot - 10;
   const P = rrectPts(x - w / 2, y - h / 2, w, h, 14, 5);
   gfill(P, SK.sheet, { off: [4, 4], key: key + 'f' }); gline(P, { closed: true, w: 3.5, key: key + 'o', second: false });
-  if (kind === 'meh') { graphiteScribble(x, y - 20, w * 0.55, h * 0.4, key + 'sc'); handLetter('meh', x, y + h * 0.36, 44, { col: SK.graph, key: key + 'l' }); }
+  if (kind === 'meh') { graphiteScribble(x, y - 20, w * 0.55, h * 0.4, key + 'sc'); if (lab) handLetter('meh', x, y + h * 0.36, 44, { col: SK.graph, key: key + 'l' }); }
   else if (kind === 'wow') {
     for (let i = 0; i < 10; i++) { const a = i / 10 * TAU + B * 0.1; gline([[x + Math.cos(a) * 70, y - 20 + Math.sin(a) * 70], [x + Math.cos(a) * 110, y - 20 + Math.sin(a) * 110]], { w: 4, key: key + 'r' + i, second: false }); }
     const S = loopPts(x, y - 20, 58, 58, 0.08); scribbleFill(S, SK.hilite, { key: key + 'sf', gap: 9, w: 3.6, base: 0.5 }); gline(S, { w: 4, key: key + 'so' });
-    handLetter('WOW!', x, y + h * 0.36, 52, { face: 'marker', key: key + 'l' });
-  } else handLetter('?', x, y, 140, { col: SK.graph, key: key + 'q' });
+    if (lab) handLetter('WOW!', x, y + h * 0.36, 52, { face: 'marker', key: key + 'l' });
+  } else if (y > sTop + 60 && y < sBot - 60) handLetter('?', x, y, 140, { col: SK.graph, key: key + 'q' });
 }
 function sceneSwipe() {
   const cu = TIMELINE.cues;
@@ -27,7 +28,8 @@ function sceneSwipe() {
   gfill(inner, '#fff6c8', { off: [0, 0], key: 'phs' }); scribbleFill(inner, SK.hilite, { key: 'phsc', gap: 13, w: 3.5, base: 0.35 });
   ctx.save(); gclip(inner);
   const cardH = 440, step = 520, top = PH.y - 30;
-  FEED.forEach((k, i) => { const y = top + i * step - off * step; if (y > PH.y - 800 && y < PH.y + 800) feedCard(k, PH.x, y, PH.w - 110, cardH, 'card' + i); });
+  const sTop = PH.y - PH.h / 2 + 70, sBot = PH.y + PH.h / 2 - 70;   // only cards inside the screen (their labels too)
+  FEED.forEach((k, i) => { const y = top + i * step - off * step; if (y + cardH / 2 > sTop && y - cardH / 2 < sBot) feedCard(k, PH.x, y, PH.w - 110, cardH, 'card' + i, sTop, sBot); });
   ctx.restore();
   gline(body, { closed: true, w: 6, key: 'pho' }); gline(inner, { closed: true, w: 3, key: 'phi', second: false });
   gline([[PH.x - 40, PH.y - PH.h / 2 + 36], [PH.x + 40, PH.y - PH.h / 2 + 36]], { w: 5, key: 'spk', second: false });

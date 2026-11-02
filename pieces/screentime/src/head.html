@@ -30,7 +30,8 @@ function VW(id, word, n = 1) {
   const hits = L.words.filter((x) => x.w.toLowerCase().replace(/[^a-z']/g, '').startsWith(w));
   return (hits[n - 1] || hits[0] || { t0: L.t0 }).t0;
 }
-const gap = (a, b) => (VL(a).t1 + VL(b).t0) / 2;   // the middle of the pause between two lines
+const snap8 = (t) => Math.round(t / 0.25) * 0.25;   // the 8th grid at 120 BPM
+const gap = (a, b) => snap8((VL(a).t1 + VL(b).t0) / 2);   // the middle of the pause between two lines, on the grid
 const DURATION = Math.round(VOICE.duration * FPS) / FPS;
 const NFRAMES = Math.round(DURATION * FPS);
 const LOOP_T = NFRAMES / FPS;
@@ -40,7 +41,7 @@ const CX = 500;
 
 // ---- the clock: era boundaries in the pauses; the payoff (glow -> sun) in the silence after "scattered focus"
 const T1 = gap('open', 'swipe'), T2 = gap('swipe', 'dopa'), T3 = gap('dopa', 'brake'), T4 = gap('brake', 'night');
-const T5 = gap('night', 'cost'), T6 = VL('cost').t1 + 1.25, T7 = gap('good', 'end');
+const T5 = gap('night', 'cost'), T6 = snap8(VL('cost').t1 + 1.25), T7 = gap('good', 'end');
 const ERA_T = [0, T1, T2, T3, T4, T5, T6, T7, DURATION];
 const ERA_FN = [() => sceneRoom(false), () => sceneSwipe(), () => sceneDopa(), () => sceneBrakes(), () => sceneNight(), () => sceneCost(), () => sceneMorning(), () => sceneRoom(true)];
 const ERA_LIST = ERA_FN.map((f, i) => [ERA_T[i], ERA_T[i + 1], f]);

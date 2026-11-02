@@ -49,8 +49,8 @@
   [cu.sleep, cu.play, cu.faces].forEach((t, i) => chime(t + 0.05, [nz(['Fs5', 'A5', 'D6'][i])], 0.04, -0.2 + i * 0.2));   // the three ticks
   each(T6 + 1.0, T7, E8, (t, k) => { if (k % 2 === 0 || k % 8 === 5) pluck(t, nz(['D4', 'Fs4', 'A4', 'D5', 'A4', 'Fs4', 'E4', 'Fs4'][k % 8]), 0.04, Math.sin(k) * 0.3, 0.35, 2600, 0.25); if (k % 4 === 0) bass(t, nz(Math.floor(k / 8) % 2 ? 'A1' : 'D2'), 0.11); });
   // balance: back to the opening hum, in major, Sam's motif, fading
-  pad(T7, END, ['D3', 'A3', 'Fs4'], 0.032, { type: 'triangle', cut: 800, att: 0.3, rel: 1.2 });
-  SAM(cu.balance + 0.6, 0.14, [['D4', 0], ['A4', E8], ['D5', BEAT]]);
+  pad(T7, END, ['D3', 'A3', 'Fs4'], 0.014, { type: 'triangle', cut: 800, att: 0.3, rel: 1.2 });
+  SAM(cu.balance + 0.6, 0.09, [['D4', 0], ['A4', E8], ['D5', BEAT]]);
 
   // ================= SFX =================
   to = 's';
