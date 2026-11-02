@@ -1,0 +1,1970 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Glowing Rectangle</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #1d1a17; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; }
+  canvas { height: min(100vh, calc(100vw * 16 / 9)); width: auto; aspect-ratio: 9 / 16; display: block; cursor: pointer; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+"use strict";
+// ---- voice.json (tools/voice.mjs): the voice-over's lines and word times
+const VOICE = {"duration":46.097,"lead":1,"tail":2,"lines":[{"id":"open","text":"Meet Sam. About five hours a day, Sam's world fits in a glowing rectangle.","t0":1,"t1":5.48,"words":[{"w":"Meet","t0":1,"t1":1.315,"est":true},{"w":"Sam.","t0":1.315,"t1":1.568,"est":true},{"w":"About","t0":1.568,"t1":1.946,"est":true},{"w":"five","t0":1.946,"t1":2.262,"est":true},{"w":"hours","t0":2.262,"t1":2.641,"est":true},{"w":"a","t0":2.641,"t1":2.767,"est":true},{"w":"day,","t0":2.767,"t1":3.019,"est":true},{"w":"Sam's","t0":3.019,"t1":3.335,"est":true},{"w":"world","t0":3.335,"t1":3.713,"est":true},{"w":"fits","t0":3.713,"t1":4.029,"est":true},{"w":"in","t0":4.029,"t1":4.218,"est":true},{"w":"a","t0":4.218,"t1":4.344,"est":true},{"w":"glowing","t0":4.344,"t1":4.849,"est":true},{"w":"rectangle.","t0":4.849,"t1":5.48,"est":true}]},{"id":"swipe","text":"Every swipe is a tiny gamble. Will the next one be good?","t0":5.98,"t1":9.224,"words":[{"w":"Every","t0":5.98,"t1":6.334,"est":true},{"w":"swipe","t0":6.334,"t1":6.688,"est":true},{"w":"is","t0":6.688,"t1":6.865,"est":true},{"w":"a","t0":6.865,"t1":6.983,"est":true},{"w":"tiny","t0":6.983,"t1":7.278,"est":true},{"w":"gamble.","t0":7.278,"t1":7.69,"est":true},{"w":"Will","t0":7.69,"t1":7.985,"est":true},{"w":"the","t0":7.985,"t1":8.221,"est":true},{"w":"next","t0":8.221,"t1":8.516,"est":true},{"w":"one","t0":8.516,"t1":8.752,"est":true},{"w":"be","t0":8.752,"t1":8.929,"est":true},{"w":"good?","t0":8.929,"t1":9.224,"est":true}]},{"id":"dopa","text":"That not knowing releases dopamine, the brain's want more signal. It fires for the chase, not the prize.","t0":9.674,"t1":15.493,"words":[{"w":"That","t0":9.674,"t1":9.965,"est":true},{"w":"not","t0":9.965,"t1":10.198,"est":true},{"w":"knowing","t0":10.198,"t1":10.663,"est":true},{"w":"releases","t0":10.663,"t1":11.187,"est":true},{"w":"dopamine,","t0":11.187,"t1":11.711,"est":true},{"w":"the","t0":11.711,"t1":11.943,"est":true},{"w":"brain's","t0":11.943,"t1":12.351,"est":true},{"w":"want","t0":12.351,"t1":12.642,"est":true},{"w":"more","t0":12.642,"t1":12.933,"est":true},{"w":"signal.","t0":12.933,"t1":13.34,"est":true},{"w":"It","t0":13.34,"t1":13.515,"est":true},{"w":"fires","t0":13.515,"t1":13.864,"est":true},{"w":"for","t0":13.864,"t1":14.096,"est":true},{"w":"the","t0":14.096,"t1":14.329,"est":true},{"w":"chase,","t0":14.329,"t1":14.678,"est":true},{"w":"not","t0":14.678,"t1":14.911,"est":true},{"w":"the","t0":14.911,"t1":15.144,"est":true},{"w":"prize.","t0":15.144,"t1":15.493,"est":true}]},{"id":"brake","text":"The part that says enough, the prefrontal cortex, keeps wiring until around age twenty five.","t0":15.993,"t1":21.433,"words":[{"w":"The","t0":15.993,"t1":16.235,"est":true},{"w":"part","t0":16.235,"t1":16.537,"est":true},{"w":"that","t0":16.537,"t1":16.839,"est":true},{"w":"says","t0":16.839,"t1":17.141,"est":true},{"w":"enough,","t0":17.141,"t1":17.565,"est":true},{"w":"the","t0":17.565,"t1":17.806,"est":true},{"w":"prefrontal","t0":17.806,"t1":18.471,"est":true},{"w":"cortex,","t0":18.471,"t1":18.894,"est":true},{"w":"keeps","t0":18.894,"t1":19.257,"est":true},{"w":"wiring","t0":19.257,"t1":19.68,"est":true},{"w":"until","t0":19.68,"t1":20.043,"est":true},{"w":"around","t0":20.043,"t1":20.466,"est":true},{"w":"age","t0":20.466,"t1":20.708,"est":true},{"w":"twenty","t0":20.708,"t1":21.131,"est":true},{"w":"five.","t0":21.131,"t1":21.433,"est":true}]},{"id":"night","text":"At night, screen light tells the body it's still day. Melatonin, the sleep signal, waits. And kids' eyes are extra sensitive.","t0":21.933,"t1":29.578,"words":[{"w":"At","t0":21.933,"t1":22.127,"est":true},{"w":"night,","t0":22.127,"t1":22.516,"est":true},{"w":"screen","t0":22.516,"t1":22.97,"est":true},{"w":"light","t0":22.97,"t1":23.358,"est":true},{"w":"tells","t0":23.358,"t1":23.747,"est":true},{"w":"the","t0":23.747,"t1":24.006,"est":true},{"w":"body","t0":24.006,"t1":24.33,"est":true},{"w":"it's","t0":24.33,"t1":24.589,"est":true},{"w":"still","t0":24.589,"t1":24.978,"est":true},{"w":"day.","t0":24.978,"t1":25.237,"est":true},{"w":"Melatonin,","t0":25.237,"t1":25.885,"est":true},{"w":"the","t0":25.885,"t1":26.144,"est":true},{"w":"sleep","t0":26.144,"t1":26.533,"est":true},{"w":"signal,","t0":26.533,"t1":26.986,"est":true},{"w":"waits.","t0":26.986,"t1":27.375,"est":true},{"w":"And","t0":27.375,"t1":27.634,"est":true},{"w":"kids'","t0":27.634,"t1":27.958,"est":true},{"w":"eyes","t0":27.958,"t1":28.282,"est":true},{"w":"are","t0":28.282,"t1":28.541,"est":true},{"w":"extra","t0":28.541,"t1":28.93,"est":true},{"w":"sensitive.","t0":28.93,"t1":29.578,"est":true}]},{"id":"cost","text":"Less sleep. Scattered focus.","t0":30.028,"t1":31.954,"words":[{"w":"Less","t0":30.028,"t1":30.385,"est":true},{"w":"sleep.","t0":30.385,"t1":30.813,"est":true},{"w":"Scattered","t0":30.813,"t1":31.526,"est":true},{"w":"focus.","t0":31.526,"t1":31.954,"est":true}]},{"id":"good","text":"The good news? Young brains are built to change. Sleep, play, and real faces rebuild them.","t0":34.154,"t1":39.942,"words":[{"w":"The","t0":34.154,"t1":34.423,"est":true},{"w":"good","t0":34.423,"t1":34.76,"est":true},{"w":"news?","t0":34.76,"t1":35.096,"est":true},{"w":"Young","t0":35.096,"t1":35.5,"est":true},{"w":"brains","t0":35.5,"t1":35.971,"est":true},{"w":"are","t0":35.971,"t1":36.24,"est":true},{"w":"built","t0":36.24,"t1":36.644,"est":true},{"w":"to","t0":36.644,"t1":36.846,"est":true},{"w":"change.","t0":36.846,"t1":37.317,"est":true},{"w":"Sleep,","t0":37.317,"t1":37.721,"est":true},{"w":"play,","t0":37.721,"t1":38.058,"est":true},{"w":"and","t0":38.058,"t1":38.327,"est":true},{"w":"real","t0":38.327,"t1":38.663,"est":true},{"w":"faces","t0":38.663,"t1":39.067,"est":true},{"w":"rebuild","t0":39.067,"t1":39.605,"est":true},{"w":"them.","t0":39.605,"t1":39.942,"est":true}]},{"id":"end","text":"Screens aren't poison. They're powerful. Balance is the skill.","t0":40.442,"t1":44.097,"words":[{"w":"Screens","t0":40.442,"t1":40.946,"est":true},{"w":"aren't","t0":40.946,"t1":41.324,"est":true},{"w":"poison.","t0":41.324,"t1":41.765,"est":true},{"w":"They're","t0":41.765,"t1":42.206,"est":true},{"w":"powerful.","t0":42.206,"t1":42.774,"est":true},{"w":"Balance","t0":42.774,"t1":43.278,"est":true},{"w":"is","t0":43.278,"t1":43.467,"est":true},{"w":"the","t0":43.467,"t1":43.719,"est":true},{"w":"skill.","t0":43.719,"t1":44.097,"est":true}]}]};
+// =====================================================================
+//  THE GLOWING RECTANGLE — 9:16, ~46s, 24fps, voice-led. How screen time works on a kid's brain:
+//  Sam's tablet glow travels into the brain (the chase, the unfinished brakes, the lost sleep), then the
+//  glow lifts off the face-down tablet and becomes the morning sun. Yellow = the screen's glow, and only that
+//  (plus the one highlighted word per caption). Terracotta = Sam.
+//  The voice is the clock: every era boundary sits in the pause between two lines (VOICE, tools/voice.mjs).
+// =====================================================================
+const FPS = 24, W = 1080, H = 1920;
+const BPM = 120, BEAT = 60 / BPM, E8 = BEAT / 2, E16 = BEAT / 4;
+const VL = (id) => VOICE.lines.find((l) => l.id === id);
+// when the n-th (1-based) word starting with `word` in line `id` begins
+function VW(id, word, n = 1) {
+  const L = VL(id), w = word.toLowerCase();
+  const hits = L.words.filter((x) => x.w.toLowerCase().replace(/[^a-z']/g, '').startsWith(w));
+  return (hits[n - 1] || hits[0] || { t0: L.t0 }).t0;
+}
+const gap = (a, b) => (VL(a).t1 + VL(b).t0) / 2;   // the middle of the pause between two lines
+const DURATION = Math.round(VOICE.duration * FPS) / FPS;
+const NFRAMES = Math.round(DURATION * FPS);
+const LOOP_T = NFRAMES / FPS;
+const SAFE = { top: 240, bottom: 420, right: 140 };
+const HAND = '"Ink Free", "Segoe Print", "Bradley Hand", "Comic Sans MS", "Chalkboard SE", cursive';
+const CX = 500;
+
+// ---- the clock: era boundaries in the pauses; the payoff (glow -> sun) in the silence after "scattered focus"
+const T1 = gap('open', 'swipe'), T2 = gap('swipe', 'dopa'), T3 = gap('dopa', 'brake'), T4 = gap('brake', 'night');
+const T5 = gap('night', 'cost'), T6 = VL('cost').t1 + 1.25, T7 = gap('good', 'end');
+const ERA_T = [0, T1, T2, T3, T4, T5, T6, T7, DURATION];
+const ERA_FN = [() => sceneRoom(false), () => sceneSwipe(), () => sceneDopa(), () => sceneBrakes(), () => sceneNight(), () => sceneCost(), () => sceneMorning(), () => sceneRoom(true)];
+const ERA_LIST = ERA_FN.map((f, i) => [ERA_T[i], ERA_T[i + 1], f]);
+const SHOTS = [
+  ['room', 'night: Sam hunched over a glowing tablet'],
+  ['swipe', 'inside the screen: every swipe a tiny gamble'],
+  ['dopa', 'the brain: dopamine fires for the chase'],
+  ['brakes', 'the brakes (prefrontal cortex) still in pencil'],
+  ['night', 'bedtime: screen light holds melatonin back'],
+  ['cost', 'the cost: tired, scattered; the tablet goes face-down'],
+  ['morning', 'the glow becomes the sun: sleep, play, real faces'],
+  ['balance', 'the room again, daylight: balance is the skill'],
+];
+const TIMELINE = {
+  width: W, height: H, fps: FPS, bpm: BPM, duration: DURATION, frames: NFRAMES, loop: LOOP_T, safe: SAFE,
+  format: 'morph-chain',
+  shots: SHOTS.map(([key, title], i) => ({ id: i + 1, key, era: i, t0: ERA_T[i], t1: ERA_T[i + 1], title })),
+  cuts: [],
+  morphs: [T1, T2, T3, T4, T5, T6, T7],
+  cues: {
+    payoff: T6, facedown: VL('cost').t1 + 0.35,
+    sleep: VW('good', 'sleep'), play: VW('good', 'play'), faces: VW('good', 'faces'),
+    gamble: VW('swipe', 'gamble'), chase: VW('dopa', 'chase'), prize: VW('dopa', 'prize'),
+    enough: VW('brake', 'enough'), melatonin: VW('night', 'melatonin'), sensitive: VW('night', 'sensitive'),
+    balance: VW('end', 'balance'),
+  },
+  acts: [
+    { name: '1 Hook', role: 'build', t0: 0, t1: T2 },
+    { name: '2 Inside the brain', role: 'journey', t0: T2, t1: T5 },
+    { name: '3 The cost', role: 'peak', t0: T5, t1: VL('cost').t1 + 0.05 },
+    { name: '4 Silence', role: 'silence', t0: VL('cost').t1 + 0.05, t1: T6 - 0.02 },
+    { name: '5 Morning', role: 'gift', t0: T6 - 0.02, t1: T7 },
+    { name: '6 Balance', role: 'goodbye', t0: T7, t1: DURATION },
+  ],
+  board: [
+    { t: T1 - 2.6, title: '1 Sam + the glowing rectangle', sound: 'quiet hum', next: 'push in; the tablet becomes the phone screen' },
+    { t: T2 - 0.7, title: '2 every swipe a gamble', sound: 'a pluck per swipe', next: 'the screen becomes the brain' },
+    { t: T3 - 1.9, title: '3 dopamine: the chase', sound: 'groove builds', next: 'the front of the brain becomes a wheel' },
+    { t: T4 - 0.9, title: '4 the brakes, still in pencil', sound: 'groove', next: 'the wheel becomes the moon' },
+    { t: T5 - 2.0, title: '5 night: melatonin waits', sound: 'busiest', next: 'the moon becomes tired Sam' },
+    { t: T6 - 0.65, title: '6 the cost; tablet face-down', sound: 'SILENCE', next: 'the glow lifts off and becomes the sun' },
+    { t: T7 - 1.7, title: '7 morning: sleep, play, faces', sound: 'LOUDEST hit, warm swell', next: 'the sun becomes the window' },
+    { t: DURATION - 1.2, title: '8 balance is the skill', sound: 'fades', next: 'back to the start' },
+  ],
+  narration: VOICE.lines.map((l) => ({ t0: l.t0, t1: l.t1, text: l.text })),
+};
+window.TIMELINE = TIMELINE;
+// =====================================================================
+//  kit/core.js — seeded RNG, math, easing, palette, geometry, the hand-drawn drawing kit
+//  (wobble on the boil, ink, paint, hatch, pencil, stipple, grain), cameras, mono text.
+//  Needs from the piece head: FPS, W, H. Render state: ctx, F (frame), B (boil = floor(F/2)).
+// =====================================================================
+
+// ---------------------------------------------------------------------
+//  seeded RNG
+// ---------------------------------------------------------------------
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function hash(...xs) {
+  let h = 2166136261 >>> 0;
+  for (const x of xs) {
+    const s = String(x);
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    h ^= 124; h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+function RNG(...xs) {
+  const f = mulberry32(hash(...xs));
+  return {
+    f,
+    r: (a, b) => a + (b - a) * f(),
+    n: (amt) => (f() * 2 - 1) * amt,
+    i: (a, b) => a + Math.floor(f() * (b - a + 1)),
+    pick: (arr) => arr[Math.floor(f() * arr.length)],
+  };
+}
+
+// ---------------------------------------------------------------------
+//  math
+// ---------------------------------------------------------------------
+const TAU = Math.PI * 2, DEG = Math.PI / 180;
+const clamp = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+// has absolute time t reached cut time c? (cuts snap to the nearest frame, like shot boundaries)
+const past = (t, c) => Math.round(t * FPS + 1e-6) >= Math.round(c * FPS);
+const dist = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]);
+const EZ = {
+  o2: (t) => 1 - (1 - clamp(t)) ** 2,
+  o3: (t) => 1 - (1 - clamp(t)) ** 3,
+  i2: (t) => clamp(t) ** 2,
+  i3: (t) => clamp(t) ** 3,
+  io: (t) => { t = clamp(t); return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2; },
+  back: (t) => { t = clamp(t) - 1; return 1 + 2.70158 * t * t * t + 1.70158 * t * t; },
+};
+
+// ---------------------------------------------------------------------
+//  render state
+// ---------------------------------------------------------------------
+let ctx = null;   // current 2d context
+let F = 0;        // absolute frame index
+let B = 0;        // boil index — reseeds every 2 frames (Math.floor(t*12))
+
+const C = {
+  ink: '#3a2417', cream: '#efe5cf', paper: '#f4ecd9', paperLine: 'rgba(90,130,190,0.32)',
+  orange: '#e58a4e', orangeD: '#c3622e', orangeL: '#f4b27c', terra: '#d97757',
+  rose: '#d98b8b', roseD: '#b0616a', roseL: '#efb9b0',
+  wood: '#d6a466', woodD: '#a8773f', woodL: '#e9c48f',
+  sky: '#9cc4d6', skyD: '#6f9fb8', skyL: '#c9e1ea',
+  teal: '#3d9f96', tealL: '#86c9be',
+  yellow: '#f0c55a', yellowL: '#f7dd92',
+  green: '#5f9c5c', greenL: '#a3cf92',
+  red: '#d4382c', redL: '#ea7a6c',
+  skin: '#ebb68f', skinD: '#c7815d', skinL: '#f7d4b4',
+  lav: 'rgba(104,112,214,0.7)', lavS: 'rgba(104,112,214,0.42)',
+  navy: '#0c0d1c', navy2: '#15173a', peri: '#c8d0f0', periD: '#7c86c4', periS: 'rgba(150,164,230,0.20)',
+  cyan: '#52d6c4', mag: '#e0368f', glow: '#5de37a', white: '#f4f6ff',
+};
+const RAINBOW = ['#f0d042', '#e050b8', '#46cde0', '#7ad866', '#a47ef0'];
+const MONO = 'Consolas, "Cascadia Mono", Menlo, "DejaVu Sans Mono", "Courier New", monospace';   // Windows first, then macOS / Linux
+
+// ---------------------------------------------------------------------
+//  geometry
+// ---------------------------------------------------------------------
+function ellipsePts(cx, cy, rx, ry, rot = 0, n = 64, a0 = 0, a1 = TAU) {
+  const P = [], c = Math.cos(rot), s = Math.sin(rot), full = Math.abs(a1 - a0 - TAU) < 1e-6;
+  for (let i = 0; i < n; i++) {
+    const a = a0 + (a1 - a0) * i / (full ? n : n - 1);
+    const x = Math.cos(a) * rx, y = Math.sin(a) * ry;
+    P.push([cx + x * c - y * s, cy + x * s + y * c]);
+  }
+  return P;
+}
+function rrectPts(x, y, w, h, r, n = 6) {
+  r = Math.min(r, w / 2, h / 2);
+  const P = [], cs = [[x + w - r, y + r, -Math.PI / 2], [x + w - r, y + h - r, 0], [x + r, y + h - r, Math.PI / 2], [x + r, y + r, Math.PI]];
+  for (const [cx, cy, a0] of cs) for (let i = 0; i <= n; i++) { const a = a0 + (Math.PI / 2) * i / n; P.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); }
+  return P;
+}
+function arcPts(cx, cy, r, a0, a1, n = 18, sy = 1) {
+  const P = [];
+  for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; P.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r * sy]); }
+  return P;
+}
+function xform(P, tx, ty, rot = 0, sx = 1, sy = sx) {
+  const c = Math.cos(rot), s = Math.sin(rot);
+  return P.map(([x, y]) => [tx + x * sx * c - y * sy * s, ty + x * sx * s + y * sy * c]);
+}
+function bbox(P, pad = 0) {
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (const [x, y] of P) { if (x < x0) x0 = x; if (y < y0) y0 = y; if (x > x1) x1 = x; if (y > y1) y1 = y; }
+  return { x0: x0 - pad, y0: y0 - pad, x1: x1 + pad, y1: y1 + pad };
+}
+function resample(P, closed, step) {
+  const out = [], n = P.length, m = closed ? n : n - 1;
+  for (let i = 0; i < m; i++) {
+    const a = P[i], b = P[(i + 1) % n], k = Math.max(1, Math.ceil(dist(a, b) / step));
+    for (let j = 0; j < k; j++) out.push([a[0] + (b[0] - a[0]) * j / k, a[1] + (b[1] - a[1]) * j / k]);
+  }
+  if (!closed) out.push(P[n - 1]);
+  return out;
+}
+function pathLen(P) { let L = 0; for (let i = 1; i < P.length; i++) L += dist(P[i - 1], P[i]); return L; }
+function subPath(P, frac) {
+  let want = pathLen(P) * clamp(frac);
+  const out = [P[0]];
+  for (let i = 1; i < P.length; i++) {
+    const d = dist(P[i - 1], P[i]);
+    if (want >= d) { out.push(P[i]); want -= d; }
+    else { const k = want / (d || 1); out.push([lerp(P[i - 1][0], P[i][0], k), lerp(P[i - 1][1], P[i][1], k)]); break; }
+  }
+  return out;
+}
+function pointAt(P, frac) { const S = subPath(P, frac); return S[S.length - 1]; }
+
+// ---------------------------------------------------------------------
+//  drawing kit — boil, sketchy lines, hatching, stipple, pencil, grain
+// ---------------------------------------------------------------------
+// smooth hand wobble along the normal; reseeded every boil step
+function wobble(P, closed, amt, key, step = 7) {
+  const Q = resample(P, closed, step), n = Q.length;
+  const R = RNG('wob', key, B);
+  const f1 = R.r(0.012, 0.03), f2 = R.r(0.05, 0.1), p1 = R.r(0, TAU), p2 = R.r(0, TAU);
+  const sx = R.n(amt * 0.5), sy = R.n(amt * 0.5);
+  const out = new Array(n); let s = 0;
+  for (let i = 0; i < n; i++) {
+    const a = Q[closed ? (i - 1 + n) % n : Math.max(0, i - 1)], b = Q[closed ? (i + 1) % n : Math.min(n - 1, i + 1)];
+    const nx = a[1] - b[1], ny = b[0] - a[0], l = Math.hypot(nx, ny) || 1;
+    if (i) s += dist(Q[i - 1], Q[i]);
+    const o = amt * (0.75 * Math.sin(s * f1 + p1) + 0.35 * Math.sin(s * f2 + p2));
+    out[i] = [Q[i][0] + nx / l * o + sx, Q[i][1] + ny / l * o + sy];
+  }
+  return out;
+}
+function trace(P, closed) {
+  ctx.beginPath();
+  const n = P.length; if (n < 2) return;
+  if (closed) {
+    ctx.moveTo((P[n - 1][0] + P[0][0]) / 2, (P[n - 1][1] + P[0][1]) / 2);
+    for (let i = 0; i < n; i++) { const p = P[i], q = P[(i + 1) % n]; ctx.quadraticCurveTo(p[0], p[1], (p[0] + q[0]) / 2, (p[1] + q[1]) / 2); }
+    ctx.closePath();
+  } else {
+    ctx.moveTo(P[0][0], P[0][1]);
+    for (let i = 1; i < n - 1; i++) { const p = P[i], q = P[i + 1]; ctx.quadraticCurveTo(p[0], p[1], (p[0] + q[0]) / 2, (p[1] + q[1]) / 2); }
+    ctx.lineTo(P[n - 1][0], P[n - 1][1]);
+  }
+}
+// sketchy stroke. o: closed, color, w, amt, key, alpha, frac (write-on), double
+function ink(P, o = {}) {
+  const closed = !!o.closed, key = o.key ?? 'ink';
+  let Q = o.raw ? P : wobble(P, closed, o.amt ?? 1.8, key);
+  let cl = closed;
+  if (o.frac != null && o.frac < 1) { if (o.frac <= 0) return Q; Q = subPath(closed ? [...Q, Q[0]] : Q, o.frac); cl = false; }
+  ctx.strokeStyle = o.color || C.ink; ctx.lineWidth = o.w ?? 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.globalAlpha = o.alpha ?? 1;
+  trace(Q, cl); ctx.stroke();
+  if (o.double) {
+    let Q2 = wobble(P, closed, (o.amt ?? 1.8) * 1.6 + 0.8, key + '~');
+    if (!cl && closed) Q2 = subPath([...Q2, Q2[0]], o.frac ?? 1);
+    ctx.lineWidth = (o.w ?? 3) * 0.4; ctx.globalAlpha = (o.alpha ?? 1) * 0.55; trace(Q2, cl); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  return Q;
+}
+// filled shape + textures (clipped) + ink outline
+function paint(P, o = {}) {
+  const key = o.key || 'paint';
+  const Q = o.raw ? P : wobble(P, true, o.amt ?? 1.6, key);
+  ctx.save();
+  trace(Q, true);
+  if (o.fill) { ctx.globalAlpha = o.fillAl ?? 1; ctx.fillStyle = o.fill; ctx.fill(); ctx.globalAlpha = 1; }
+  if (o.tex) { ctx.clip(); const bb = bbox(Q, 6); o.tex.forEach((t, i) => texture(bb, { key: key + ':' + i, ...t })); }
+  ctx.restore();
+  if (o.line !== false) {
+    ctx.strokeStyle = o.line || C.ink; ctx.lineWidth = o.w ?? 3; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.globalAlpha = o.lineAl ?? 1; trace(Q, true); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  return Q;
+}
+function texture(bb, t) {
+  if (t.k === 'hatch') hatch(bb, t);
+  else if (t.k === 'cross') { hatch(bb, t); hatch(bb, { ...t, a: (t.a ?? 0.7) + (t.a2 ?? 1.25), key: t.key + 'x' }); }
+  else if (t.k === 'pencil') pencil(bb, t);
+  else if (t.k === 'stipple') stipple(bb, t);
+  else if (t.k === 'fn') t.fn(bb);
+}
+// parallel hatching inside current clip. t: a angle, gap, c, w, al, dash [min,max], skip, dens(x,y)
+function hatch(bb, t) {
+  const a = t.a ?? 0.7, gap = t.gap ?? 7, S = RNG('hs', t.key), R = RNG('hj', t.key, B);
+  const cx = (bb.x0 + bb.x1) / 2, cy = (bb.y0 + bb.y1) / 2, rad = Math.hypot(bb.x1 - bb.x0, bb.y1 - bb.y0) / 2 + 4;
+  const ca = Math.cos(a), sa = Math.sin(a), dens = t.dens, jit = t.jit ?? 0.9, dash = t.dash;
+  ctx.beginPath();
+  for (let d = -rad; d <= rad; d += gap) {
+    const dd = d + S.n(gap * 0.3);
+    let u = -rad + (dash ? S.r(0, dash[1]) : 0);
+    while (u < rad) {
+      const len = dash ? S.r(dash[0], dash[1]) : rad * 2, u2 = Math.min(rad, u + len);
+      const mu = (u + u2) / 2, mx = cx + ca * mu - sa * dd, my = cy + sa * mu + ca * dd, p = S.f();
+      if (!dens || p < dens(mx, my)) {
+        const e1 = R.n(jit), e2 = R.n(jit);
+        ctx.moveTo(cx + ca * u - sa * (dd + e1), cy + sa * u + ca * (dd + e1));
+        ctx.lineTo(cx + ca * u2 - sa * (dd + e2), cy + sa * u2 + ca * (dd + e2));
+      }
+      u = u2 + (dash ? S.r(t.skip?.[0] ?? 3, t.skip?.[1] ?? 12) : 0);
+    }
+  }
+  ctx.strokeStyle = t.c || C.ink; ctx.lineWidth = t.w ?? 1.2; ctx.globalAlpha = t.al ?? 0.5; ctx.lineCap = 'round';
+  ctx.stroke(); ctx.globalAlpha = 1;
+}
+// colored-pencil diagonal strokes
+function pencil(bb, t) {
+  const S = RNG('ps', t.key), R = RNG('pj', t.key, B);
+  const area = (bb.x1 - bb.x0) * (bb.y1 - bb.y0);
+  const n = Math.min(t.max ?? 6000, t.n ?? Math.floor(area / (t.per ?? 700)));
+  const a = t.a ?? -0.95, L = t.len ?? 14, dens = t.dens;
+  ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    const x = S.r(bb.x0, bb.x1), y = S.r(bb.y0, bb.y1), p = S.f(), aa = a + S.n(0.22), l = L * (0.5 + S.f() * 0.7);
+    if (dens && p > dens(x, y)) continue;
+    const jx = R.n(1.1), jy = R.n(1.1), dx = Math.cos(aa) * l / 2, dy = Math.sin(aa) * l / 2;
+    ctx.moveTo(x - dx + jx, y - dy + jy); ctx.lineTo(x + dx + jx, y + dy + jy);
+  }
+  ctx.strokeStyle = t.c; ctx.lineWidth = t.w ?? 1.4; ctx.globalAlpha = t.al ?? 0.45; ctx.lineCap = 'round';
+  ctx.stroke(); ctx.globalAlpha = 1;
+}
+// square stipple dots
+function stipple(bb, t) {
+  const S = RNG('ss', t.key), R = RNG('sj', t.key, B);
+  const n = t.n ?? 400, sz = t.s ?? 2.2, dens = t.dens, jit = t.jit ?? 0.8;
+  ctx.fillStyle = t.c; ctx.globalAlpha = t.al ?? 1; ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    const x = S.r(bb.x0, bb.x1), y = S.r(bb.y0, bb.y1), p = S.f(), s = sz * (0.6 + S.f() * 0.8);
+    if (dens && p > dens(x, y)) continue;
+    ctx.rect(x + R.n(jit), y + R.n(jit), s, s);
+  }
+  ctx.fill(); ctx.globalAlpha = 1;
+}
+// screen-space paper grain, reseeded with the boil
+function grain(o = {}) {
+  ctx.save(); screen();
+  const R = RNG('grain', B), n = o.n ?? 2600;
+  ctx.fillStyle = o.dark || 'rgba(70,45,25,0.13)'; ctx.beginPath();
+  for (let i = 0; i < n; i++) ctx.rect(R.r(0, W), R.r(0, H), 1.7, 1.7);
+  ctx.fill();
+  ctx.fillStyle = o.light || 'rgba(255,250,236,0.20)'; ctx.beginPath();
+  for (let i = 0; i < n; i++) ctx.rect(R.r(0, W), R.r(0, H), 1.9, 1.9);
+  ctx.fill();
+  // a few paper fibres
+  ctx.strokeStyle = 'rgba(80,55,35,0.07)'; ctx.lineWidth = 1; ctx.beginPath();
+  for (let i = 0; i < 90; i++) { const x = R.r(0, W), y = R.r(0, H), a = R.r(0, TAU), l = R.r(6, 22); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); }
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ---------------------------------------------------------------------
+//  construction lines, rulers, sparks, bursts, rainbow contours
+// ---------------------------------------------------------------------
+function construct(cx, cy, r, o = {}) {
+  const R = RNG('con', o.key ?? 'c', B);
+  ctx.save();
+  ctx.strokeStyle = o.c || C.lav; ctx.lineWidth = o.w ?? 1.4; ctx.globalAlpha = o.al ?? 1; ctx.lineCap = 'round';
+  const a0 = (o.a0 ?? R.r(0, TAU)), sw = o.sweep ?? 1.05;
+  ctx.beginPath(); ctx.ellipse(cx + R.n(1.2), cy + R.n(1.2), r, r * (o.sq ?? 1), o.rot ?? 0, a0, a0 + TAU * sw); ctx.stroke();
+  if (o.cross) { const k = o.cross; ctx.beginPath(); ctx.moveTo(cx - k, cy); ctx.lineTo(cx + k, cy); ctx.moveTo(cx, cy - k); ctx.lineTo(cx, cy + k); ctx.stroke(); }
+  if (o.ticks) {
+    ctx.beginPath();
+    for (let i = 0; i < o.ticks; i++) { const a = i / o.ticks * TAU + (o.rot ?? 0); ctx.moveTo(cx + Math.cos(a) * (r - 6), cy + Math.sin(a) * (r - 6)); ctx.lineTo(cx + Math.cos(a) * (r + 6), cy + Math.sin(a) * (r + 6)); }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+function cline(x1, y1, x2, y2, o = {}) {
+  const R = RNG('cl', o.key ?? 'l', B);
+  ctx.save(); ctx.strokeStyle = o.c || C.lavS; ctx.lineWidth = o.w ?? 1.2; ctx.globalAlpha = o.al ?? 1;
+  ctx.beginPath(); ctx.moveTo(x1 + R.n(1), y1 + R.n(1)); ctx.lineTo(x2 + R.n(1), y2 + R.n(1)); ctx.stroke(); ctx.restore();
+}
+function ruler(x1, y1, x2, y2, o = {}) {
+  const R = RNG('rul', o.key ?? 'r', B);
+  const L = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / L, uy = (y2 - y1) / L, nx = -uy, ny = ux;
+  const frac = clamp(o.frac ?? 1), step = o.step ?? 16, tk = o.tick ?? 7, side = o.side ?? 1;
+  ctx.save(); ctx.strokeStyle = o.c || C.periD; ctx.lineWidth = o.w ?? 1.5; ctx.globalAlpha = o.al ?? 1; ctx.lineCap = 'round';
+  const jx = R.n(0.8), jy = R.n(0.8);
+  ctx.beginPath(); ctx.moveTo(x1 + jx, y1 + jy); ctx.lineTo(x1 + ux * L * frac + jx, y1 + uy * L * frac + jy);
+  const n = Math.floor(L * frac / step);
+  for (let i = 0; i <= n; i++) {
+    const k = i % 5 === 0 ? tk * 1.9 : tk, px = x1 + ux * i * step + jx, py = y1 + uy * i * step + jy;
+    ctx.moveTo(px, py); ctx.lineTo(px + nx * k * side, py + ny * k * side);
+  }
+  ctx.moveTo(x1 - nx * tk * 1.6, y1 - ny * tk * 1.6); ctx.lineTo(x1 + nx * tk * 2.2, y1 + ny * tk * 2.2);
+  if (frac >= 1) { ctx.moveTo(x2 - nx * tk * 1.6, y2 - ny * tk * 1.6); ctx.lineTo(x2 + nx * tk * 2.2, y2 + ny * tk * 2.2); }
+  ctx.stroke(); ctx.restore();
+}
+// glowing radial spark (dark world)
+function sparkBurst(cx, cy, r, o = {}) {
+  if (r <= 0.5) return;
+  const R = RNG('spk', o.key ?? 's', B), n = o.n ?? 18, rays = [];
+  for (let i = 0; i < n; i++) { const a = i / n * TAU + R.n(0.14); rays.push([a, r * R.r(0.28, 0.5), r * R.r(0.72, 1.15)]); }
+  const path = () => { ctx.beginPath(); for (const [a, r0, r1] of rays) { ctx.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0); ctx.lineTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1); } };
+  ctx.save(); ctx.lineCap = 'round';
+  path(); ctx.strokeStyle = o.glow || 'rgba(82,214,196,0.22)'; ctx.lineWidth = (o.w ?? 2.4) * 3.4; ctx.stroke();
+  path(); ctx.strokeStyle = o.c || '#8ff5e6'; ctx.lineWidth = o.w ?? 2.4; ctx.stroke();
+  if (o.core !== false) {
+    const cr = Math.max(2.5, r * (o.coreR ?? 0.15));
+    ctx.beginPath(); ctx.arc(cx, cy, cr * 2.2, 0, TAU); ctx.fillStyle = 'rgba(190,215,255,0.16)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, cr, 0, TAU); ctx.fillStyle = C.white; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.periD; ctx.stroke();
+  }
+  if (o.specks) { ctx.fillStyle = o.c || '#8ff5e6'; for (let i = 0; i < o.specks; i++) { const a = R.r(0, TAU), d = r * R.r(0.2, 1.4); ctx.fillRect(cx + Math.cos(a) * d, cy + Math.sin(a) * d, 2, 2); } }
+  ctx.restore();
+}
+// radial tick burst (warm world impact)
+function burst(cx, cy, r0, r1, o = {}) {
+  const R = RNG('bur', o.key ?? 'b', B), n = o.n ?? 12;
+  ctx.save(); ctx.strokeStyle = o.c || C.ink; ctx.lineWidth = o.w ?? 3; ctx.lineCap = 'round'; ctx.globalAlpha = o.al ?? 1; ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    const a = i / n * TAU + R.n(0.15) + (o.rot ?? 0), a1 = r0 * R.r(0.85, 1.1), b1 = r1 * R.r(0.75, 1.15);
+    ctx.moveTo(cx + Math.cos(a) * a1, cy + Math.sin(a) * a1); ctx.lineTo(cx + Math.cos(a) * b1, cy + Math.sin(a) * b1);
+  }
+  ctx.stroke(); ctx.restore();
+}
+function star4(x, y, s, c) {
+  ctx.save(); ctx.fillStyle = c; ctx.beginPath();
+  ctx.moveTo(x, y - s); ctx.quadraticCurveTo(x, y, x + s, y); ctx.quadraticCurveTo(x, y, x, y + s);
+  ctx.quadraticCurveTo(x, y, x - s, y); ctx.quadraticCurveTo(x, y, x, y - s); ctx.fill(); ctx.restore();
+}
+// rainbow contour strokes around a moving part
+function rainbow(P, o = {}) {
+  const bb = bbox(P), cx = o.cx ?? (bb.x0 + bb.x1) / 2, cy = o.cy ?? (bb.y0 + bb.y1) / 2, n = o.n ?? 3;
+  for (let i = 0; i < n; i++) {
+    const S = RNG('rb', o.key, i, B), sc = 1 + (o.spread ?? 0.07) * (i + 1) + S.n(0.02);
+    const Q = P.map(([x, y]) => [cx + (x - cx) * sc + S.n(o.drift ?? 3), cy + (y - cy) * sc + S.n(o.drift ?? 3)]);
+    ink(Q, { closed: o.closed ?? true, color: RAINBOW[(i + (o.off ?? 0)) % RAINBOW.length], w: o.w ?? 1.6, amt: o.amt ?? 3.5, key: o.key + 'rb' + i, alpha: o.al ?? 0.85 });
+  }
+}
+// hex cell grid inside current clip
+function hexGrid(bb, size, o = {}) {
+  const h = size * Math.sqrt(3), R = RNG('hex', o.key ?? 'h', B);
+  ctx.save(); ctx.strokeStyle = o.c || C.periS; ctx.lineWidth = o.w ?? 1.2; ctx.globalAlpha = o.al ?? 1; ctx.beginPath();
+  let row = 0;
+  for (let y = bb.y0 - h; y < bb.y1 + h; y += h * 0.5, row++) {
+    for (let x = bb.x0 - size * 3 + (row % 2) * size * 1.5; x < bb.x1 + size * 3; x += size * 3) {
+      const jx = R.n(0.6), jy = R.n(0.6);
+      for (let k = 0; k < 6; k++) {
+        const a = k / 6 * TAU, b = (k + 1) / 6 * TAU;
+        if (k === 0) ctx.moveTo(x + Math.cos(a) * size + jx, y + Math.sin(a) * size + jy);
+        ctx.lineTo(x + Math.cos(b) * size + jx, y + Math.sin(b) * size + jy);
+      }
+    }
+  }
+  ctx.stroke(); ctx.restore();
+}
+
+// ---------------------------------------------------------------------
+//  iris, camera, text
+// ---------------------------------------------------------------------
+// ragged hatched rim; dir=+1 strokes reach outward, -1 inward
+function irisRim(cx, cy, r, dir, o = {}) {
+  const R = RNG('irisR', o.key ?? 'i', B), n = Math.min(1600, Math.floor(r * TAU / 2.0));
+  ctx.strokeStyle = o.c || '#0b0c17'; ctx.lineWidth = o.w ?? 1.6; ctx.lineCap = 'round'; ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    const a = R.r(0, TAU), L = R.r(3, 11) + (R.f() < 0.28 ? R.r(10, 34) : 0), sl = R.n(0.4);
+    const r0 = r - dir * R.r(2, 6), r1 = r + dir * L, ax = Math.cos(a), ay = Math.sin(a);
+    ctx.moveTo(cx + ax * r0, cy + ay * r0); ctx.lineTo(cx + ax * r1 - ay * L * sl, cy + ay * r1 + ax * L * sl);
+  }
+  ctx.stroke();
+}
+// iris into a black hole (screen space)
+function irisHole(cx, cy, r, o = {}) {
+  if (r <= 0.5) return;
+  ctx.save(); screen();
+  const col = o.c || '#0b0c17';
+  const P = wobble(ellipsePts(cx, cy, r, r, 0, 140), true, Math.min(4, 0.6 + r * 0.02), 'ih' + (o.key ?? ''), 9);
+  trace(P, true); ctx.fillStyle = col; ctx.fill();
+  irisRim(cx, cy, r, +1, { c: col, key: o.key });
+  if (o.inner) { ctx.save(); trace(P, true); ctx.clip(); o.inner(r); ctx.restore(); }
+  ctx.restore();
+}
+// world point (cx,cy) lands at screen centre
+function camera(cx, cy, zoom = 1, rot = 0, sx = 0, sy = 0) {
+  const c = Math.cos(rot) * zoom, s = Math.sin(rot) * zoom;
+  ctx.setTransform(c, s, -s, c, W / 2 + sx - (c * cx - s * cy), H / 2 + sy - (s * cx + c * cy));
+}
+function screen() { ctx.setTransform(1, 0, 0, 1, 0, 0); }
+function toScreen(x, y) { const p = ctx.getTransform().transformPoint(new DOMPoint(x, y)); return [p.x, p.y]; }
+function fillAll(color) { ctx.save(); screen(); ctx.fillStyle = color; ctx.fillRect(0, 0, W, H); ctx.restore(); }
+
+// monospace text with per-glyph hand jitter
+function monoText(str, x, y, size, color, o = {}) {
+  ctx.save();
+  ctx.font = `${o.weight ?? 700} ${size}px ${MONO}`; ctx.fillStyle = color; ctx.textBaseline = 'alphabetic';
+  const cw = ctx.measureText('M').width, R = RNG('txt', o.key ?? str, B), jit = o.jit ?? 0.9;
+  const n = Math.min(o.count ?? str.length, str.length);
+  ctx.globalAlpha = o.al ?? 1;
+  for (let i = 0; i < n; i++) {
+    const ch = str[i]; if (ch === ' ') continue;
+    ctx.save(); ctx.translate(x + i * cw + R.n(jit), y + R.n(jit)); ctx.rotate(R.n(0.045)); ctx.fillText(ch, 0, 0); ctx.restore();
+  }
+  ctx.restore();
+  return cw;
+}
+function monoW(size) { ctx.save(); ctx.font = `700 ${size}px ${MONO}`; const w = ctx.measureText('M').width; ctx.restore(); return w; }
+
+// single-stroke hand lettering (x-height 0.5, ascender 1.0, baseline 0)
+const GLYPHS = {
+  ' ': { w: 0.26, s: [] },
+  c: { w: 0.5, s: [arcPts(0.26, -0.25, 0.25, -35 * DEG, -322 * DEG, 22)] },
+  o: { w: 0.52, s: [arcPts(0.26, -0.25, 0.25, -95 * DEG, -460 * DEG, 30)] },
+  a: { w: 0.54, s: [[...arcPts(0.25, -0.25, 0.235, -28 * DEG, -335 * DEG, 24)], [[0.49, -0.5], [0.49, -0.05], [0.55, 0.0]]] },
+  d: { w: 0.56, s: [[...arcPts(0.25, -0.25, 0.235, -28 * DEG, -335 * DEG, 24)], [[0.49, -1.0], [0.49, -0.05], [0.56, 0.0]]] },
+  l: { w: 0.24, s: [[[0.08, -1.0], [0.08, -0.1], [0.12, -0.01], [0.2, 0.0]]] },
+  u: { w: 0.54, s: [[[0.03, -0.5], [0.03, -0.22], ...arcPts(0.255, -0.22, 0.225, 180 * DEG, 0, 14), [0.48, -0.5]], [[0.48, -0.5], [0.48, -0.04], [0.54, 0.0]]] },
+  e: { w: 0.52, s: [[[0.03, -0.26], [0.5, -0.26], ...arcPts(0.265, -0.25, 0.245, -4 * DEG, -318 * DEG, 26)]] },
+};
+function handwrite(str, x, y, size, o = {}) {
+  const strokes = []; let pen = 0;
+  for (const ch of str) {
+    const g = GLYPHS[ch] || GLYPHS[' '];
+    for (const s of g.s) strokes.push(s.map(([u, v]) => [x + (pen + u) * size, y + v * size]));
+    pen += g.w + 0.1;
+  }
+  const lens = strokes.map(pathLen), total = lens.reduce((a, b) => a + b, 0);
+  let budget = clamp(o.frac ?? 1) * total;
+  for (let i = 0; i < strokes.length && budget > 0; i++) {
+    const f = Math.min(1, budget / lens[i]); budget -= lens[i];
+    if (o.glow) ink(strokes[i], { color: o.glow, w: (o.w ?? size * 0.06) * 3, amt: o.amt ?? 1.0, key: 'hw' + i + str, frac: f });
+    ink(strokes[i], { color: o.c, w: o.w ?? size * 0.06, amt: o.amt ?? 1.0, key: 'hw' + i + str, frac: f });
+  }
+  return pen * size;
+}
+
+// =====================================================================
+// ---- small props and helpers
+function drawPencil(tx, ty, ang, len, k = 1, key = 'pencil') {
+  ctx.save(); ctx.translate(tx, ty); ctx.rotate(ang); ctx.scale(k, k);
+  paint([[46, -16], [len, -16], [len, 16], [46, 16]], {
+    fill: C.yellow, key: key + 'b', w: 3,
+    tex: [{ k: 'hatch', a: 0.05, gap: 5, c: '#a8741d', al: 0.55, w: 1.1, dash: [20, 90], dens: (x, y) => (y > 5 ? 1 : 0.08) }, { k: 'pencil', c: '#fff1b8', al: 0.5, a: 0.05, len: 30, per: 120, dens: (x, y) => (y < -4 ? 1 : 0.1) }],
+  });
+  ink([[50, -5], [len, -5]], { w: 1.6, key: key + 'f1', alpha: 0.7 });
+  ink([[50, 6], [len, 6]], { w: 1.6, key: key + 'f2', alpha: 0.7 });
+  paint([[1, 0], [46, -15], [46, 15]], { fill: '#efcf9f', key: key + 'c', w: 2.6, tex: [{ k: 'hatch', a: 1.2, gap: 4, al: 0.35, dens: (x, y) => (y > 2 ? 1 : 0.1) }] });
+  paint([[0, 0], [15, -5], [15, 5]], { fill: '#3b3438', key: key + 't', w: 2 });
+  paint([[len, -17], [len + 26, -17], [len + 26, 17], [len, 17]], { fill: '#bcb7ab', key: key + 'fe', w: 2.6, tex: [{ k: 'hatch', a: Math.PI / 2, gap: 5, al: 0.5 }] });
+  paint(rrectPts(len + 24, -16, 34, 32, 10), { fill: '#e58f8c', key: key + 'e', w: 2.6, tex: [{ k: 'pencil', c: C.roseD, al: 0.5, per: 60 }] });
+  ctx.restore();
+}
+// smoothstep of x between a and b (NOT manim's `smooth` rate function — the math style calls that smoothM)
+const smooth = (a, b, x) => { const u = clamp((x - a) / (b - a)); return u * u * (3 - 2 * u); };
+const mod = (a, n) => ((a % n) + n) % n;
+function asterisk(x, y, r0, r1, n, rot, color, w) {
+  ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.beginPath();
+  for (let i = 0; i < n; i++) { const a = i / n * TAU + rot; ctx.moveTo(x + Math.cos(a) * r0, y + Math.sin(a) * r0); ctx.lineTo(x + Math.cos(a) * r1, y + Math.sin(a) * r1); }
+  ctx.stroke(); ctx.restore();
+}
+
+// ---------------------------------------------------------------------
+//  time (set by the renderer): TT = absolute time on the motion step (on 2s unless STYLE.ones);
+//  E0 = the current era's start; DEFER = overlay queue (captions drawn after the camera); SPARK_AT = the hero's screen spot
+//  ev(t, d) = 0..1 progress of an event at t over d seconds; popS(t) = back-eased pop-in scale
+// ---------------------------------------------------------------------
+let TT = 0, E0 = 0, DEFER = null, SPARK_AT = null;
+const ev = (t, d = 0.25) => clamp((TT - t) / d);
+const popS = (t) => (TT < t ? 0 : EZ.back(clamp((TT - t) / 0.25)));
+
+// ---------------------------------------------------------------------
+//  springs: closed-form, so any frame can be drawn on its own (deterministic, no state)
+//  springEase(t, k, d)       0 -> 1 over time t >= 0 (stiffness k, damping d): accelerates, overshoots a hair, settles
+//  springMove(t0, a, b, p)   a value moving from a to b, starting at time t0 (p = a SPRING preset)
+//  springTrack(keys, p)      a value with many targets: keys = [[t, value], ...] sorted by t. One spring per change,
+//                            added up, so a target change mid-move stays continuous (cursors, widths, positions)
+// ---------------------------------------------------------------------
+const SPRING = {
+  snappy: { k: 320, d: 30 },    // UI: buttons, toggles, leading edges
+  smooth: { k: 170, d: 26 },    // cards, containers, the camera
+  heavy: { k: 90, d: 19 },      // big type, logos, large objects
+  playful: { k: 260, d: 14 },   // mascots, stickers: visible overshoot
+};
+function springEase(t, k = 170, d = 26) {
+  if (t <= 0) return 0;
+  const w0 = Math.sqrt(k), z = d / (2 * w0);
+  if (z < 1) { const wd = w0 * Math.sqrt(1 - z * z); return 1 - Math.exp(-z * w0 * t) * (Math.cos(wd * t) + (z * w0 / wd) * Math.sin(wd * t)); }
+  return 1 - Math.exp(-w0 * t) * (1 + w0 * t);
+}
+const springMove = (t0, a, b, p = SPRING.smooth) => a + (b - a) * springEase(TT - t0, p.k, p.d);
+function springTrack(keys, p = SPRING.smooth) {
+  let v = keys[0][1];
+  for (let i = 1; i < keys.length; i++) v += (keys[i][1] - keys[i - 1][1]) * springEase(TT - keys[i][0], p.k, p.d);
+  return v;
+}
+
+// ---------------------------------------------------------------------
+//  layout for several formats (9:16, 1:1, 16:9, 4:5 from one piece): place things by fractions of the frame,
+//  size them by UNIT (1 at 1080 on the short side). LX(0.5), LY(0.62), 120 * UNIT. PORTRAIT / WIDE pick layouts.
+// ---------------------------------------------------------------------
+const LX = (f) => f * W, LY = (f) => f * H, UNIT = Math.min(W, H) / 1080, PORTRAIT = H > W * 1.2, WIDE = W > H * 1.2;
+
+// ---------------------------------------------------------------------
+//  the user's own assets (screenshots, logos): files in <piece>/assets/ that tools/build.mjs embeds in the page.
+//  asset('logo.png') -> the Image (or null); drawAsset(name, x, y, w, h, { fit: 'contain'|'cover', r, alpha })
+//  Real product UI only: never redraw a product screen from imagination when a screenshot exists.
+// ---------------------------------------------------------------------
+const asset = (name) => (typeof ASSETS !== 'undefined' && ASSETS[name] && ASSETS[name].complete ? ASSETS[name] : null);
+function drawAsset(name, x, y, w, h, o = {}) {
+  const img = asset(name); if (!img) return false;
+  const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+  const s = (o.fit === 'cover' ? Math.max : Math.min)(w / iw, h / ih), dw = iw * s, dh = ih * s;
+  ctx.save(); ctx.globalAlpha *= o.alpha ?? 1;
+  if (o.r || o.fit === 'cover') { ctx.beginPath(); ctx.roundRect(x, y, w, h, o.r || 0); ctx.clip(); }
+  ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+  ctx.restore(); return true;
+}
+// =====================================================================
+//  styles/sketchbook/kit.js — graphite and one accent colour on a sketchbook page, hand lettering.
+//  On top of kit/core.js (RNG, resample, subPath, trace, bbox, grain, toScreen, fillAll, screen, TT/ev/popS/DEFER/E0).
+//  Names here never reuse core's: gline / gpencil (not ink / pencil), writeOn (not subPath), ghatch (not hatch),
+//  loopPts / sketchBox (not ellipsePts / rrectPts), handLetter (not handwrite).
+//  Needs from the piece head: HAND (hand font stack), CX (caption centre x). The marker stack is SK_MARKER below.
+//
+//  THE PAGE   one warm page (dot grid or ruled, tooth, fibres, smudges, a coffee ring, spiral binding), built once
+//             from a seeded RNG and cached; the page is the world, so it moves with the camera.
+//  THE HAND   every line is redrawn on 2s: wobble phases reseed per boil (B); structure (where a scribble goes)
+//             is seeded by key and never reseeds, only the tremor does.
+//  THE INKS   graphite = rough, provisional, the mess. Ink = what is settled. ONE accent colour (terracotta) = the hero.
+//             Highlighter yellow marks what to read; red marker is for a title underline or a stamp, once.
+// =====================================================================
+const SK = {
+  paper: '#f2ead8', ink: '#2a2420', graph: '#6f6a63', graphL: '#9a948b',
+  terra: '#d97757', terraD: '#b85c3f', cream: '#f7ecd9', sheet: '#fffdf6',
+  hilite: '#f7d64a', red: '#e0483a', green: '#4f9d5d', blue: '#3b5c8c',
+  pink: '#ef9aa6', glass: '#9cc6d8', tape: '#efe2b4', wood: '#ecc995', lead: '#3b3632', yellow: '#f1bf2c',
+};
+const SK_HAND = HAND;
+const SK_MARKER = '"Segoe Print", "Marker Felt", "Bradley Hand", "Comic Sans MS", cursive';
+
+// ---------------------------------------------------------------------
+//  THE HAND: polylines that boil
+// ---------------------------------------------------------------------
+// wobble along the normal, phases reseeded every boil step; index-based so the tremor follows the stroke
+function gwob(P, key, amp) {
+  const R = RNG('gw', key, B), p1 = R.r(0, TAU), p2 = R.r(0, TAU), f1 = 0.28 + R.f() * 0.25, f2 = 0.9 + R.f() * 0.5;
+  const n = P.length, out = new Array(n);
+  for (let i = 0; i < n; i++) {
+    const a = P[Math.max(0, i - 1)], b = P[Math.min(n - 1, i + 1)];
+    let nx = a[1] - b[1], ny = b[0] - a[0]; const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
+    const o = amp * (0.62 * Math.sin(i * f1 + p1) + 0.38 * Math.sin(i * f2 + p2));
+    out[i] = [P[i][0] + nx * o, P[i][1] + ny * o];
+  }
+  return out;
+}
+// write-on: the first `part` of a polyline by length (null when nothing shows yet)
+function writeOn(P, part) {
+  if (part >= 1) return P;
+  if (part <= 0) return null;
+  const Q = subPath(P, part);
+  return Q.length > 1 ? Q : null;
+}
+const writeEnd = (P, part) => { const Q = writeOn(resample(P, false, 12), clamp(part)); return Q ? Q[Q.length - 1] : P[0]; };
+const closeP = (P) => [...P, P[0]];
+// the ink line: one confident stroke and a thin second pass that doesn't quite agree.
+// o: w, col, a, key, amp, part (write-on 0..1), step, second, closed
+function gline(P, o = {}) {
+  const { w = 5, col = SK.ink, a = 1, key = 'gl', amp = 1.7, part = 1, step = 12, second = true } = o;
+  const Q = writeOn(resample(o.closed ? closeP(P) : P, false, step), part); if (!Q) return null;
+  ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = col; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.lineWidth = w; trace(gwob(Q, key, amp), false); ctx.stroke();
+  if (second) { ctx.globalAlpha *= 0.55; ctx.lineWidth = w * 0.42; trace(gwob(Q, key + '~', amp * 1.6), false); ctx.stroke(); }
+  ctx.restore();
+  return Q;
+}
+// the graphite line: two light passes, the second looser (construction, mess, things not settled yet)
+function gpencil(P, o = {}) {
+  const { w = 2.4, col = SK.graph, a = 0.8, key = 'gp', amp = 2.4, part = 1, step = 12, passes = 2 } = o;
+  const Q = writeOn(resample(o.closed ? closeP(P) : P, false, step), part); if (!Q) return null;
+  ctx.save(); ctx.strokeStyle = col; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for (let k = 0; k < passes; k++) {
+    ctx.globalAlpha = a * (k ? 0.5 : 0.85); ctx.lineWidth = w * (k ? 0.8 : 1);
+    trace(gwob(Q, key + ':' + k, amp * (1 + k * 0.6)), false); ctx.stroke();
+  }
+  ctx.restore();
+  return Q;
+}
+// a hand-drawn loop: overshoots its start and drifts outward a little (over = how far past 360°)
+function loopPts(cx, cy, rx, ry, over = 0.07, a0 = -2.2, n = 0) {
+  const N = n || Math.max(24, Math.ceil((rx + ry) * 0.35)), P = [];
+  for (let i = 0; i <= N; i++) {
+    const u = i / N, a = a0 + u * TAU * (1 + over), s = 1 + 0.035 * u * Math.sign(over);
+    P.push([cx + Math.cos(a) * rx * s, cy + Math.sin(a) * ry * s]);
+  }
+  return P;
+}
+// a box drawn in one go: rounded corners (r), the pen runs a little past the start (over)
+function sketchBox(x, y, w, h, r = 0, over = 0.04) {
+  const P = [], arc = (cx, cy, a0) => { for (let i = 0; i <= 6; i++) { const a = a0 + (i / 6) * Math.PI / 2; P.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); } };
+  arc(x + w - r, y + r, -Math.PI / 2); arc(x + w - r, y + h - r, 0); arc(x + r, y + h - r, Math.PI / 2); arc(x + r, y + r, Math.PI);
+  if (over > 0) P.push([x + r + w * over, y - 1.5]);
+  return P;
+}
+// a flat colour laid down slightly off the line (the colour pass never quite registers with the ink)
+function gfill(P, col, o = {}) {
+  const { a = 1, off = [4, 3], key = 'gf', amp = 2 } = o;
+  const Q = gwob(resample(P, false, 14), key, amp);
+  ctx.save(); ctx.globalAlpha *= a; ctx.fillStyle = col; ctx.translate(off[0], off[1]); trace(Q, false); ctx.closePath(); ctx.fill(); ctx.restore();
+}
+function gclip(P) { trace(resample(P, false, 16), false); ctx.closePath(); ctx.clip(); }
+// parallel hatching inside a clip that is already set; structure seeded by key, tremor on the boil
+function ghatch(x0, y0, x1, y1, o = {}) {
+  const { ang = -0.85, gap = 7, col = SK.graph, w = 2, a = 0.5, key = 'gh' } = o;
+  const S = RNG('ghs', key), R = RNG('ghj', key, B);
+  ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = w; ctx.globalAlpha *= a; ctx.lineCap = 'round';
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, rad = Math.hypot(x1 - x0, y1 - y0) / 2 + 4, ca = Math.cos(ang), sa = Math.sin(ang);
+  ctx.beginPath();
+  for (let d = -rad; d <= rad; d += gap) {
+    const j = R.n(1.1), len = rad * (0.8 + S.f() * 0.25), px = cx - sa * (d + j), py = cy + ca * (d + j);
+    ctx.moveTo(px - ca * len, py - sa * len); ctx.lineTo(px + ca * len, py + sa * len);
+  }
+  ctx.stroke(); ctx.restore();
+}
+// shade a shape with hatching, leaving a lit circle top-left (the way the page's round things are shaded)
+function litHatch(P, o = {}) {
+  const bb = bbox(P), cx = (bb.x0 + bb.x1) / 2, cy = (bb.y0 + bb.y1) / 2, r = Math.max(bb.x1 - bb.x0, bb.y1 - bb.y0) / 2;
+  ctx.save(); gclip(P);
+  ctx.beginPath(); ctx.rect(bb.x0 - r, bb.y0 - r, 4 * r, 4 * r); ctx.arc(cx - r * (o.lx ?? 0.3), cy - r * (o.ly ?? 0.34), r * (o.lr ?? 1.02), 0, TAU); ctx.clip('evenodd');
+  ghatch(bb.x0, bb.y0, bb.x1, bb.y1, o); ctx.restore();
+}
+// a back-and-forth scribble that shades a shape in one colour (clipped; write it on with part)
+function scribbleFill(P, col, o = {}) {
+  const { ang = -0.6, gap = 11, w = 3.2, a = 0.85, key = 'sf', part = 1, amp = 1.3, base = 0.3 } = o;
+  const bb = bbox(P, 6), cx = (bb.x0 + bb.x1) / 2, cy = (bb.y0 + bb.y1) / 2, rad = Math.hypot(bb.x1 - bb.x0, bb.y1 - bb.y0) / 2;
+  const ca = Math.cos(ang), sa = Math.sin(ang), S = RNG('sfs', key), Z = [];
+  for (let d = -rad, i = 0; d <= rad; d += gap, i++) {
+    const e = i % 2 ? 1 : -1, L = rad * (0.9 + S.f() * 0.15);
+    Z.push([cx - sa * d + ca * L * e, cy + ca * d + sa * L * e]);
+  }
+  ctx.save(); gclip(P);
+  if (base > 0) { ctx.globalAlpha = base * clamp(part * 3); ctx.fillStyle = col; ctx.fillRect(bb.x0, bb.y0, bb.x1 - bb.x0, bb.y1 - bb.y0); ctx.globalAlpha = 1; }
+  gline(Z, { w, col, a, key: key + 'z', amp, part, step: 14, second: false });
+  ctx.restore();
+}
+// a tangle of graphite: raw stuff, the mess (seeded shape, boiling tremor)
+function graphiteScribble(cx, cy, w, h, key, o = {}) {
+  const S = RNG('gsc', key), n = o.n ?? 34, P = [], a1 = 1.2 + S.f() * 1.6, a2 = 2.3 + S.f() * 1.9, ph = S.f() * TAU;
+  for (let i = 0; i < n; i++) {
+    const u = (i / n) * Math.PI * 4;
+    P.push([cx + Math.sin(u * a1 * 0.5 + ph) * w / 2 * (0.55 + 0.45 * S.f()), cy + Math.cos(u * a2 * 0.5) * h / 2 * (0.55 + 0.45 * S.f())]);
+  }
+  return gpencil(P, { key: 'gsc' + key, amp: 1.4, w: o.w ?? 2.8, a: o.a ?? 0.85, step: 10, col: o.col ?? SK.graph, part: o.part ?? 1 });
+}
+// a soft graphite smudge (a thumb dragged through pencil): radial falloff, no hard edge
+function smudgeOn(g, x, y, rx, ry, a = 0.12, rot = 0) {
+  g.save(); g.translate(x, y); g.rotate(rot); g.scale(1, ry / rx);
+  const gr = g.createRadialGradient(0, 0, 0, 0, 0, rx);
+  gr.addColorStop(0, `rgba(80,76,70,${a})`); gr.addColorStop(0.55, `rgba(80,76,70,${a * 0.5})`); gr.addColorStop(1, 'rgba(80,76,70,0)');
+  g.fillStyle = gr; g.beginPath(); g.arc(0, 0, rx, 0, TAU); g.fill(); g.restore();
+}
+const smudge = (x, y, rx, ry, a, rot) => smudgeOn(ctx, x, y, rx, ry, a, rot);
+
+// ---------------------------------------------------------------------
+//  THE HAND: lettering (local system fonts; per-glyph jitter on the boil; letters write on one by one)
+// ---------------------------------------------------------------------
+const SK_GLYPH = new Map();   // static measurements, keyed by font + string
+const skFont = (size, face = 'hand', weight) => face === 'marker' ? `${weight ?? 700} ${size}px ${SK_MARKER}` : `${weight ?? 400} ${size}px ${SK_HAND}`;
+function glyphX(str, font) {
+  const k = font + '|' + str; let v = SK_GLYPH.get(k); if (v) return v;
+  ctx.save(); ctx.font = font; v = []; for (let i = 0; i <= str.length; i++) v.push(ctx.measureText(str.slice(0, i)).width); ctx.restore();
+  SK_GLYPH.set(k, v); return v;
+}
+const letterW = (str, size, face = 'hand', weight) => { const xs = glyphX(str, skFont(size, face, weight)); return xs[xs.length - 1]; };
+// o: face ('hand' | 'marker'), weight, col, align ('center' | 'left' | 'right'), reveal 0..1, key, jit, a, rot
+// returns [left, right] of the string so callers can underline or highlight it
+function handLetter(str, x, y, size, o = {}) {
+  const { face = 'hand', weight, col = SK.ink, align = 'center', reveal = 1, key = str, jit = 1, a = 1, rot = 0 } = o;
+  const stroke = o.stroke ?? (face === 'hand' ? size * 0.024 : 0);   // thin system hand fonts get a pen-weight stroke
+  const font = skFont(size, face, weight), xs = glyphX(str, font), wTot = xs[xs.length - 1];
+  const x0 = align === 'center' ? x - wTot / 2 : align === 'right' ? x - wTot : x;
+  const n = str.length, shown = clamp(reveal) * n;
+  if (shown <= 0) return [x0, x0 + wTot];
+  ctx.save(); ctx.font = font; ctx.fillStyle = col; ctx.strokeStyle = col; ctx.lineWidth = stroke; ctx.lineJoin = 'round'; ctx.textBaseline = 'alphabetic';
+  ctx.translate(x, y); ctx.rotate(rot); ctx.translate(-x, -y);
+  for (let i = 0; i < n && i < shown; i++) {
+    if (str[i] === ' ') continue;
+    const k = clamp(shown - i), R = RNG('hl', key, i, B);
+    const jx = R.n(1.2) * jit, jy = R.n(1.4) * jit, jr = R.n(0.025) * jit, gx = x0 + xs[i], gw = xs[i + 1] - xs[i];
+    ctx.save(); ctx.globalAlpha = a * (0.25 + 0.75 * k);
+    ctx.translate(gx + gw / 2 + jx, y + jy + (1 - k) * size * 0.12); ctx.rotate(jr); ctx.scale(0.8 + 0.2 * k, 0.8 + 0.2 * k);
+    ctx.fillText(str[i], -gw / 2, 0); if (stroke > 0) ctx.strokeText(str[i], -gw / 2, 0); ctx.restore();
+  }
+  ctx.restore();
+  return [x0, x0 + wTot];
+}
+// a highlighter swipe behind a word: rough ends, multiplied so the lettering sits on top
+function highlight(x0, x1, y, h, part, o = {}) {
+  if (part <= 0) return;
+  const xe = lerp(x0, x1, EZ.o3(part));
+  ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = o.a ?? 0.8; ctx.strokeStyle = o.col ?? SK.hilite; ctx.lineCap = 'butt'; ctx.lineWidth = h;
+  trace(gwob(resample([[x0 - 8, y + 3], [xe + 8, y - 3]], false, 18), 'hi' + (o.key ?? x0), 2.5), false); ctx.stroke(); ctx.restore();
+}
+// a quick underline (slightly bowed), written on
+function underline(x0, x1, y, o = {}) {
+  return gline([[x0 - 6, y], [lerp(x0, x1, 0.5), y + (o.bow ?? 6)], [x1 + 10, y - 5]], { w: o.w ?? 5, col: o.col ?? SK.ink, key: o.key ?? 'ul' + x0, part: o.part ?? 1, amp: 2.2, second: false });
+}
+
+// ---------------------------------------------------------------------
+//  THE PAGE (built once per grid kind, seeded, cached: a static thing, so nothing carries between frames)
+// ---------------------------------------------------------------------
+const SK_M = 160;   // the page runs this far past the frame on every side (camera moves stay on paper)
+const SK_PAGES = {};
+function pageTex(grid = 'dots') {
+  if (SK_PAGES[grid]) return SK_PAGES[grid];
+  const c = document.createElement('canvas'); c.width = W + 2 * SK_M; c.height = H + 2 * SK_M;
+  const g = c.getContext('2d'), R = RNG('page', grid), PW = c.width, PH = c.height, ox = SK_M, oy = SK_M;
+  // vignette: the page darkens toward its edges, so the frame reads as a page
+  const vg = g.createRadialGradient(PW / 2, PH * 0.45, 420, PW / 2, PH / 2, 1250);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(125,92,48,0.24)'); g.fillStyle = vg; g.fillRect(0, 0, PW, PH);
+  if (grid === 'dots') {                                                       // dot grid, page-aligned
+    g.fillStyle = 'rgba(110,100,86,0.22)';
+    for (let y = 27 - 54 * 3; y < H + SK_M; y += 54) for (let x = 27 - 54 * 3; x < W + SK_M; x += 54) g.fillRect(x + ox - 1.3, y + oy - 1.3, 2.6, 2.6);
+  } else if (grid === 'ruled') {                                               // ruled lines + a margin rule
+    g.strokeStyle = 'rgba(90,130,190,0.26)'; g.lineWidth = 1.6; g.beginPath();
+    for (let y = 200; y < H + SK_M; y += 64) { g.moveTo(0, y + oy); g.lineTo(PW, y + oy + R.n(1.5)); }
+    g.stroke(); g.strokeStyle = 'rgba(214,96,96,0.30)'; g.beginPath(); g.moveTo(ox + 70, 0); g.lineTo(ox + 70, PH); g.stroke();
+  }
+  // tooth: dark and light specks, batched by alpha
+  for (const [rgb, al, n] of [['95,72,40', 0.025, 18000], ['95,72,40', 0.06, 12000], ['255,253,245', 0.05, 14000], ['255,253,245', 0.11, 9000]]) {
+    g.fillStyle = `rgba(${rgb},${al})`; g.beginPath();
+    for (let i = 0; i < n; i++) g.rect(R.r(0, PW), R.r(0, PH), 1 + R.f() * 1.6, 1 + R.f() * 1.6);
+    g.fill();
+  }
+  g.lineCap = 'round'; g.lineWidth = 0.8;                                     // fibres
+  for (let i = 0; i < 520; i++) {
+    const x = R.r(0, PW), y = R.r(0, PH), a = R.r(0, TAU), l = 6 + R.f() * 18;
+    g.strokeStyle = `rgba(120,95,60,${(0.04 + R.f() * 0.06).toFixed(3)})`;
+    g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a + 0.5) * l * 0.5, y + Math.sin(a + 0.5) * l * 0.5, x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke();
+  }
+  // a few graphite smudges in the margins (a hand resting on the page) and ghosts of erased lines
+  for (const [x, y, rx, ry, a, rot] of [[90, 1700, 170, 60, 0.10, -0.3], [1010, 420, 120, 46, 0.08, 1.2], [180, 250, 140, 40, 0.07, 0.15], [960, 1580, 150, 50, 0.07, -0.5]]) smudgeOn(g, x + ox, y + oy, rx, ry, a, rot);
+  g.strokeStyle = 'rgba(110,104,96,0.10)'; g.lineWidth = 3;
+  for (let i = 0; i < 5; i++) { const x = R.r(80, 960) + ox, y = R.r(1560, 1840) + oy, l = R.r(80, 220); g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + l / 2, y + R.n(30), x + l, y + R.n(12)); g.stroke(); }
+  for (let k = 0; k < 3; k++) {                                                // an old coffee ring, bottom right
+    g.strokeStyle = `rgba(150,100,50,${0.08 - k * 0.02})`; g.lineWidth = 6 - k * 2;
+    g.beginPath(); g.ellipse(930 + ox + k * 2, 1760 + oy - k, 120 - k * 3, 112, 0.3, 0.2, 5.9); g.stroke();
+  }
+  for (let i = 0; i < 4; i++) {                                                // the edges of the pages below, right side
+    g.strokeStyle = `rgba(120,100,80,${0.16 - i * 0.03})`; g.lineWidth = 1.4; g.beginPath();
+    g.moveTo(ox + W - 10 + i * 5, 0); g.lineTo(ox + W - 12 + i * 5, PH); g.stroke();
+  }
+  for (let x = 40; x < W + 40; x += 62) {                                      // spiral binding along the top
+    const hx = x + ox, hy = 56 + oy;
+    g.fillStyle = 'rgba(40,32,26,0.85)'; g.beginPath(); g.ellipse(hx, hy, 9, 11, 0, 0, TAU); g.fill();
+    g.strokeStyle = 'rgba(80,78,76,0.9)'; g.lineWidth = 5; g.beginPath(); g.moveTo(hx + 2, hy + 2); g.bezierCurveTo(hx + 10, hy - 60, hx - 22, hy - 80, hx - 18, hy - 120); g.stroke();
+    g.strokeStyle = 'rgba(230,228,222,0.6)'; g.lineWidth = 1.6; g.beginPath(); g.moveTo(hx + 4, hy - 4); g.bezierCurveTo(hx + 10, hy - 58, hx - 18, hy - 78, hx - 15, hy - 118); g.stroke();
+  }
+  return (SK_PAGES[grid] = c);
+}
+// the page, in world coords (it is the world: it moves with the camera). o.grid: 'dots' | 'ruled' | 'plain'; o.tint: a colour wash
+function sketchPage(o = {}) {
+  ctx.save(); ctx.fillStyle = o.fill ?? SK.paper; ctx.fillRect(-SK_M, -SK_M, W + 2 * SK_M, H + 2 * SK_M);
+  if (o.tint) { ctx.globalAlpha = o.tintA ?? 0.18; ctx.fillStyle = o.tint; ctx.fillRect(-SK_M, -SK_M, W + 2 * SK_M, H + 2 * SK_M); ctx.globalAlpha = 1; }
+  ctx.drawImage(pageTex(o.grid ?? 'dots'), -SK_M, -SK_M); ctx.restore();
+}
+
+// ---------------------------------------------------------------------
+//  PROPS (all in local coords around (x, y); keys seed structure, B drives the tremor)
+// ---------------------------------------------------------------------
+function tapeStrip(x, y, w, rot = 0, key = 'tape', h = 46) {   // a strip of masking tape, slightly see-through
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+  const S = RNG('tp', key), P = [[-w / 2, -h / 2 + S.n(2)], [w / 2, -h / 2 + S.n(2)], [w / 2 + S.n(3), h / 2], [-w / 2 + S.n(3), h / 2]];
+  gfill(P, SK.tape, { a: 0.8, off: [0, 0], key, amp: 1.5 });
+  ctx.restore();
+}
+function scrap(x, y, rot, s, key = 'scrap') {                    // a torn page in flight
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(s, s);
+  const P = [[-34, -26], [30, -28], [36, 22], [4, 26], [-6, 21], [-32, 27]], S = RNG('scr', key);
+  gfill(P, SK.sheet, { off: [0, 0], key, amp: 1.2 });
+  gline(closeP(P), { w: 3, key: key + 'o', amp: 1, second: false });
+  for (let i = 0; i < 3; i++) gpencil([[-24, -12 + i * 12], [2 + S.f() * 26, -12 + i * 12]], { key: key + 'l' + i, w: 2, amp: 0.8, passes: 1 });
+  ctx.restore();
+}
+function pencilTool(tx, ty, ang, s = 1) {                         // tip at (tx, ty), body up and to the right
+  ctx.save(); ctx.translate(tx, ty); ctx.rotate(ang); ctx.scale(s, s);
+  gfill([[0, 0], [38, -13], [38, 13]], SK.wood, { off: [0, 0], key: 'pt1', amp: 0.6 });
+  gfill([[0, 0], [12, -4], [12, 4]], SK.lead, { off: [0, 0], key: 'pt2', amp: 0.3 });
+  const body = [[38, -13], [250, -13], [250, 13], [38, 13]];
+  gfill(body, SK.yellow, { off: [3, 2], key: 'pt3', amp: 0.8 });
+  ctx.save(); gclip(body); ghatch(38, -13, 250, 13, { ang: 0.02, gap: 8.5, col: '#c9931a', w: 2, a: 0.5, key: 'pt4' }); ctx.restore();
+  gfill([[250, -14], [278, -14], [278, 14], [250, 14]], '#b9b3a8', { off: [0, 0], key: 'pt5', amp: 0.6 });
+  gfill([[278, -13], [300, -12], [302, 12], [278, 13]], SK.pink, { off: [0, 0], key: 'pt6', amp: 0.6 });
+  gline([[0, 0], [38, -13], [300, -13], [302, 12], [38, 13], [0, 0]], { w: 3.2, key: 'pt7', amp: 0.8, second: false });
+  gline([[38, -13], [38, 13]], { w: 2, key: 'pt8', amp: 0.6, second: false }); gline([[250, -14], [250, 14]], { w: 2, key: 'pt9', amp: 0.6, second: false });
+  ctx.restore();
+}
+function eraserTool(x, y, ang, s = 1) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.scale(s, s);
+  gfill(sketchBox(-80, -42, 160, 84, 18, 0), SK.pink, { off: [4, 3], key: 'er1' });
+  gfill([[-5, -46], [86, -46], [86, 46], [-5, 46]], '#f4efe4', { off: [2, 2], key: 'er2', amp: 1 });
+  gfill([[20, -46], [42, -46], [42, 46], [20, 46]], '#5a7fb8', { a: 0.9, off: [0, 0], key: 'er3', amp: 1 });
+  gline(sketchBox(-80, -42, 160, 84, 18), { w: 4, key: 'er4' });
+  gline([[-5, -46], [86, -46], [86, 46], [-5, 46], [-5, -46]], { w: 3.5, key: 'er5', second: false });
+  ctx.restore();
+}
+function paperPlane(x, y, ang, s = 1, key = 'plane') {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.scale(s, s);
+  const top = [[48, 0], [-40, -30], [-26, 0]], bot = [[48, 0], [-26, 0], [-40, 24]];
+  gfill(top, SK.sheet, { off: [0, 0], key: key + 't', amp: 0.8 }); gfill(bot, '#e9dcc3', { off: [0, 0], key: key + 'b', amp: 0.8 });
+  gline(closeP(top), { w: 3.5, key: key + 'o1', amp: 0.8 }); gline(closeP(bot), { w: 3.5, key: key + 'o2', amp: 0.8 });
+  ctx.restore();
+}
+function noteCard(x, y, rot, s, lines = 1, key = 'note', col = SK.terra) {   // an index card; `lines` 0..1 writes its three lines on
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(s, s);
+  gfill(sketchBox(-62, -44, 124, 88, 8, 0), '#fffaf0', { off: [4, 4], key });
+  gfill([[-62, -44], [-50, -44], [-50, 44], [-62, 44]], col, { a: 0.95, off: [0, 0], key: key + 'm', amp: 0.8 });
+  gline(sketchBox(-62, -44, 124, 88, 8), { w: 4, key: key + 'o' });
+  for (let i = 0; i < 3; i++) gline([[-36, -20 + i * 20], [-36 + [80, 68, 44][i], -20 + i * 20]], { w: 3, key: key + 'l' + i, amp: 0.6, second: false, part: clamp(lines * 3 - i) });
+  ctx.restore();
+}
+function inkStamp(str, x, y, s, rot, a = 1, key = 'stamp') {     // a red rubber stamp, worn: specks knocked out
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(s, s); ctx.globalAlpha *= a;
+  const w = Math.max(300, letterW(str, 96, 'marker') + 80);
+  gline(sketchBox(-w / 2, -62, w, 124, 16), { w: 8, col: SK.red, key: key + '1', second: false });
+  gline(sketchBox(-w / 2 + 14, -50, w - 28, 100, 12), { w: 3, col: SK.red, key: key + '2', second: false });
+  handLetter(str, 0, 34, 96, { face: 'marker', col: SK.red, key: key + 't', jit: 0.6 });
+  ctx.fillStyle = SK.paper; const S = RNG('stk', key);
+  for (let i = 0; i < 260; i++) { ctx.globalAlpha = 0.55 * a; ctx.fillRect(-w / 2 + S.f() * w, -62 + S.f() * 124, 2 + S.f() * 4, 2 + S.f() * 3); }
+  ctx.restore();
+}
+function checkMark(x, y, s, part, col = SK.green, key = 'chk') {
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  gline([[-30, 2], [-8, 26], [38, -30]], { w: 12, col, key, amp: 1.2, part, step: 8 });
+  ctx.restore();
+}
+function sparkle(x, y, r, k, key = 'spk', col = SK.ink) {        // four ink ticks that open and close over k 0..1
+  if (k <= 0 || k >= 1) return; const rr = r * Math.sin(Math.PI * clamp(k));
+  for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + 0.3; gline([[x + Math.cos(a) * rr * 0.25, y + Math.sin(a) * rr * 0.25], [x + Math.cos(a) * rr, y + Math.sin(a) * rr]], { w: 3.5, col, key: key + i, second: false, amp: 0.5, step: 6 }); }
+}
+function arrowPencil(P, part, o = {}) {                           // a graphite arrow, written on, the head flicks in last
+  const { col = SK.graph, w = 3, key = 'arw' } = o;
+  gpencil(P, { part, col, w, key, a: 0.95, passes: 2 });
+  if (part > 0.85) {
+    const Q = resample(P, false, 6), e = Q[Q.length - 1], q = Q[Math.max(0, Q.length - 4)], an = Math.atan2(e[1] - q[1], e[0] - q[0]), hk = seg(part, 0.85, 1);
+    for (const s of [-1, 1]) gpencil([e, [e[0] - Math.cos(an + s * 0.5) * 26 * hk, e[1] - Math.sin(an + s * 0.5) * 26 * hk]], { col, w, key: key + s, amp: 0.6, passes: 1 });
+  }
+}
+function sweat(x, y, k, key = 'sw') {                             // a pencil drop that slides off and fades
+  if (k <= 0 || k >= 1) return;
+  const yy = y + k * 40; ctx.save(); ctx.globalAlpha *= 1 - k;
+  gpencil([[x, yy - 16], [x + 8, yy], [x, yy + 7], [x - 8, yy], [x, yy - 16]], { key, w: 2.5, amp: 0.6, step: 5 });
+  ctx.restore();
+}
+function doodleStar(x, y, r, key = 'star', o = {}) {             // a five-point margin star drawn in one stroke
+  const P = []; for (let i = 0; i <= 5; i++) { const a = -Math.PI / 2 + i * TAU * 2 / 5; P.push([x + Math.cos(a) * r, y + Math.sin(a) * r]); }
+  return gpencil(P, { key, w: o.w ?? 2.6, a: o.a ?? 0.8, amp: 1.2, step: 8, part: o.part ?? 1, col: o.col ?? SK.graph });
+}
+function doodleBird(x, y, s, flap, key = 'bird') {               // a two-arc "v" bird; flap 0..1
+  const k = 0.35 + 0.65 * flap;
+  gline([[x - 26 * s, y - 14 * s * k], [x - 12 * s, y - 16 * s * k], [x, y]], { w: 3 * s, key: key + 'l', amp: 0.5, second: false, step: 6 });
+  gline([[x, y], [x + 12 * s, y - 16 * s * k], [x + 26 * s, y - 14 * s * k]], { w: 3 * s, key: key + 'r', amp: 0.5, second: false, step: 6 });
+}
+
+// ---------------------------------------------------------------------
+//  THE HERO: a terracotta dot with a cream asterisk, eyes, a mouth; arms and legs when it needs to act.
+//  o: key, mood ('calm' | 'wow' | 'happy' | 'puzzled'), look [dx, dy] (-1..1), sx, sy (squash), rot,
+//     legs (bool), step (-1..1 stride), arms [leftAngle, rightAngle] (radians up from horizontal; null = none)
+//  Sets SPARK_AT (the hero's screen spot) for tools/review.
+// ---------------------------------------------------------------------
+function doodleHero(x, y, r, o = {}) {
+  const key = o.key ?? 'hero', mood = o.mood ?? 'calm', lw = Math.max(3, r * 0.065);
+  SPARK_AT = toScreen(x, y);
+  ctx.save(); ctx.translate(x, y); ctx.rotate(o.rot ?? 0);
+  if (o.legs) {
+    const st = o.step ?? 0;
+    for (const s of [-1, 1]) {
+      const hip = [s * r * 0.32, r * 0.85], kick = s * st * r * 0.22, foot = [s * r * 0.36 + kick, r * 1.42 - Math.max(0, s * st) * r * 0.1];
+      gline([hip, foot], { w: lw, key: key + 'leg' + s, amp: 0.8, second: false, step: 8 });
+      gline([foot, [foot[0] + s * r * 0.22, foot[1] + 2]], { w: lw * 1.25, key: key + 'ft' + s, amp: 0.5, second: false, step: 6 });
+    }
+  }
+  if (o.arms) [-1, 1].forEach((s, i) => {
+    const ang = o.arms[i]; if (ang == null) return;
+    const sh = [s * r * 0.9, r * 0.15], L = r * 0.85;
+    const el = [sh[0] + s * L * 0.5 * Math.cos(ang * 0.6), sh[1] - L * 0.5 * Math.sin(ang * 0.6)], hd = [sh[0] + s * L * Math.cos(ang), sh[1] - L * Math.sin(ang)];
+    gline([sh, el, hd], { w: lw, key: key + 'arm' + s, amp: 0.8, second: false, step: 8 });
+    gline(loopPts(hd[0], hd[1], r * 0.09, r * 0.09, 0.1), { w: lw * 0.8, key: key + 'hd' + s, amp: 0.4, second: false, step: 5 });
+  });
+  ctx.scale(o.sx ?? 1, o.sy ?? 1);
+  const body = loopPts(0, 0, r, r, 0, 0, 40);
+  gfill(body, SK.terra, { off: [r * 0.06, r * 0.05], key: key + 'f' });
+  litHatch(body, { ang: -0.85, gap: Math.max(5, r * 0.08), col: SK.terraD, w: Math.max(1.6, r * 0.03), a: 0.85, key: key + 'h' });
+  gline(loopPts(0, 0, r, r, 0.08), { w: lw, key: key + 'o' });
+  for (let i = 0; i < 8; i++) {                                                // the cream asterisk on its crown
+    const an = i / 8 * TAU + 0.2, r0 = r * 0.04, r1 = r * 0.19, cy = -r * 0.5;
+    gline([[Math.cos(an) * r0, cy + Math.sin(an) * r0], [Math.cos(an) * r1, cy + Math.sin(an) * r1]], { w: r * 0.065, col: SK.cream, key: key + 'a' + i, amp: 0.4, second: false, step: 6 });
+  }
+  const [lx, ly] = o.look ?? [0, 0], blink = mood !== 'wow' && (B + hash(key)) % 37 === 0;
+  for (const s of [-1, 1]) {
+    const ex = s * r * 0.3 + lx * r * 0.07, ey = r * 0.06 + ly * r * 0.07;
+    if (blink) gline([[ex - r * 0.09, ey], [ex + r * 0.09, ey]], { w: lw * 0.9, key: key + 'bl' + s, amp: 0.3, second: false, step: 6 });
+    else if (mood === 'happy') gline([[ex - r * 0.09, ey + r * 0.03], [ex, ey - r * 0.06], [ex + r * 0.09, ey + r * 0.03]], { w: lw * 0.9, key: key + 'hp' + s, amp: 0.3, second: false, step: 6 });
+    else {
+      ctx.fillStyle = SK.ink; ctx.beginPath(); ctx.ellipse(ex, ey, r * 0.085, r * (mood === 'wow' ? 0.15 : 0.12), 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = SK.cream; ctx.beginPath(); ctx.arc(ex - r * 0.025, ey - r * 0.045, r * 0.028, 0, TAU); ctx.fill();
+    }
+  }
+  if (mood === 'puzzled') gline([[r * 0.18, -r * 0.16], [r * 0.42, -r * 0.24]], { w: lw * 0.8, key: key + 'brow', amp: 0.4, second: false, step: 6 });
+  const my = r * 0.4;
+  if (mood === 'wow') { ctx.fillStyle = SK.ink; ctx.beginPath(); ctx.ellipse(0, my + r * 0.02, r * 0.08, r * 0.1, 0, 0, TAU); ctx.fill(); }
+  else if (mood === 'happy') { ctx.fillStyle = SK.ink; ctx.beginPath(); ctx.moveTo(-r * 0.2, my - r * 0.05); ctx.quadraticCurveTo(0, my + r * 0.3, r * 0.2, my - r * 0.05); ctx.closePath(); ctx.fill(); }
+  else if (mood === 'puzzled') gline([[-r * 0.16, my], [-r * 0.05, my - r * 0.04], [r * 0.06, my + r * 0.03], [r * 0.16, my - r * 0.02]], { w: lw * 0.8, key: key + 'm', amp: 0.4, second: false, step: 5 });
+  else gline(arcPts(0, my - r * 0.12, r * 0.16, Math.PI * 0.2, Math.PI * 0.8, 8), { w: lw * 0.8, key: key + 'm', amp: 0.4, second: false, step: 5 });
+  ctx.restore();
+  return body;
+}
+
+// ---------------------------------------------------------------------
+//  CAPTIONS: the lettering is the narrator. Drawn after the camera (DEFER), at screen size.
+//  pageTag(str)                 a marker label on masking tape, top left, written on at the era's start
+//  pageCaption(lines, hi, o)    1–2 hand-lettered lines centred on CX, written on letter by letter;
+//                               hi = [[lineIndex, 'word'], ...] gets a highlighter swipe once the line is down
+// ---------------------------------------------------------------------
+function pageTagDraw(str) {
+  const size = 70, w = letterW(str, size, 'marker'), x = 84, y = 340;
+  tapeStrip(x + w / 2, y - size * 0.3, w + 70, -0.03, 'tagtape' + str, size * 1.15);
+  const [x0, x1] = handLetter(str, x, y, size, { face: 'marker', align: 'left', reveal: ev(E0 + 0.1, 0.3), key: 'tag' + str, jit: 0.7 });
+  underline(x0, x1, y + 20, { col: SK.red, w: 5, key: 'tagu' + str, part: ev(E0 + 0.4, 0.2) });
+}
+function pageCaptionDraw(lines, hi = [], o = {}) {
+  const size = o.size ?? 80, y0 = o.y ?? 1330, lh = size * 1.12, t0 = E0 + (o.at ?? 0.35);
+  lines.forEach((line, li) => {
+    const y = y0 + li * lh, font = skFont(size, 'hand'), xs = glyphX(line, font), x0 = CX - xs[xs.length - 1] / 2;
+    for (const [hl, word] of hi) if (hl === li) { const k = line.indexOf(word); if (k >= 0) highlight(x0 + xs[k], x0 + xs[k + word.length], y - size * 0.28, size * 0.55, ev(t0 + 0.5 + li * 0.25, 0.25), { key: 'caph' + li + line }); }
+    handLetter(line, CX, y, size, { reveal: ev(t0 + li * 0.25, 0.4), key: 'cap' + li + line });
+  });
+}
+const pageTag = (str) => { const f = () => pageTagDraw(str); if (DEFER) DEFER.push(f); else f(); };
+const pageCaption = (lines, hi, o) => { const f = () => pageCaptionDraw(lines, hi, o); if (DEFER) DEFER.push(f); else f(); };
+
+// =====================================================================
+//  STYLE — the renderer's hooks (kit/morph.js). A morph happens on the bare page.
+// =====================================================================
+const STYLE = {
+  name: 'sketchbook',
+  paper: SK.paper,
+  backdrop(c) {   // the page, washed toward colour c (c = the paper itself at the heart of a morph)
+    fillAll(c);
+    ctx.save(); screen(); ctx.drawImage(pageTex('dots'), -SK_M, -SK_M); ctx.restore();
+  },
+  window(P, key, src) {   // the world seen through a graphite outline, lifted off the page by a soft smudge shadow
+    ctx.save();
+    ctx.shadowColor = 'rgba(70,64,58,0.42)'; ctx.shadowBlur = 26; ctx.shadowOffsetX = 10; ctx.shadowOffsetY = 14;
+    trace(P, true); ctx.fillStyle = SK.paper; ctx.fill();
+    ctx.restore();
+    ctx.save(); trace(P, true); ctx.clip(); ctx.drawImage(src, 0, 0); ctx.restore();
+    gpencil(P, { closed: true, w: 3, a: 0.6, amp: 3.2, key: key + 'c', step: 14 });
+    gline(P, { closed: true, w: 5.5, key: key + 'rim', step: 14 });
+  },
+  blob(P, c, key) {   // the shape mid-morph: a colour scribble inside a graphite outline
+    gfill(P, c, { a: 0.3, off: [6, 5], key: key + 'f' });
+    scribbleFill(P, c, { key: key + 's', gap: 12, w: 4, base: 0.25 });
+    gpencil(P, { closed: true, w: 2.6, a: 0.7, amp: 3, key: key + 'c' });
+    gline(P, { closed: true, w: 5.5, key: key + 'o' });
+  },
+  hero(x, y, r, o) { doodleHero(x, y, r * 0.6, { ...o, key: o.key }); },
+  heroColor: SK.terra,
+  heroPts: (x, y, r) => ellipsePts(x, y, r * 0.6, r * 0.6, 0, 96),
+  post() { grain({ n: 1800, dark: 'rgba(60,56,52,0.12)', light: 'rgba(255,253,245,0.16)' }); },
+};
+// =====================================================================
+//  SCENES — The Glowing Rectangle. World coords 1080x1920 (the page); TT on 2s; ev / popS for events.
+//  Yellow (SK.hilite) is the screen's glow and nothing else; terracotta is Sam.
+// =====================================================================
+const NIGHT = '#1f2c4f';
+const ROOM = { tab: [640, 960, 240, 168, -0.32], sam: [400, 1000, 140], win: [250, 600, 220, 240] };
+
+// ---- shared props
+function tabletPts(x, y, w, h, rot, inset = 0) {   // a rounded rectangle, rotated about its centre
+  return xform(rrectPts(-w / 2 + inset, -h / 2 + inset, w - 2 * inset, h - 2 * inset, 18 - inset * 0.5, 6), x, y, rot);
+}
+function tablet(x, y, w, h, rot, glow, key, o = {}) {
+  const outer = tabletPts(x, y, w, h, rot), inner = tabletPts(x, y, w, h, rot, 14);
+  gfill(outer, o.faceDown ? SK.graphL : SK.lead, { off: [3, 3], key: key + 'b', a: 0.9 });
+  if (!o.faceDown) {
+    gfill(inner, glow > 0 ? '#fff6c8' : SK.sheet, { off: [0, 0], key: key + 'g', a: 1 });
+    if (glow > 0) scribbleFill(inner, SK.hilite, { key: key + 's', gap: 11, w: 4, base: 0.45 * glow });
+  } else ghatch(x - w / 2, y - h / 2 - 30, x + w / 2, y + h / 2 + 30, { ang: 0.7, gap: 10, col: SK.graph, w: 2, a: 0.0, key: key + 'hh' });
+  gline(outer, { closed: true, w: 5, key: key + 'o' });
+  if (!o.faceDown) gline(inner, { closed: true, w: 2.5, key: key + 'i', second: false });
+  return inner;
+}
+// a soft cone of screen light from the tablet onto a target (a yellow scribble, low and loose)
+function glowCone(from, to, spread, a, key) {
+  const dx = to[0] - from[0], dy = to[1] - from[1], L = Math.hypot(dx, dy), nx = -dy / L, ny = dx / L;
+  const P = [[from[0] + nx * 40, from[1] + ny * 40], [to[0] + nx * spread, to[1] + ny * spread], [to[0] - nx * spread, to[1] - ny * spread], [from[0] - nx * 40, from[1] - ny * 40]];
+  ctx.save(); ctx.globalAlpha = a; scribbleFill(P, SK.hilite, { key, gap: 18, w: 3, base: 0.25 }); ctx.restore();
+}
+function windowFrame(x, y, w, h, key, sky, o = {}) {
+  const P = sketchBox(x - w / 2, y - h / 2, w, h, 8, 0.03);
+  gfill(rrectPts(x - w / 2, y - h / 2, w, h, 8), sky, { off: [0, 0], key: key + 'sky', a: 1 });
+  if (o.moon) {
+    const m = loopPts(x + 28, y - 30, 34, 34, 0.08);
+    gfill(m, '#f3eedb', { off: [0, 0], key: key + 'mf' }); gline(m, { w: 3.5, key: key + 'm', col: '#f3eedb', second: false });
+    [[x - 40, y - 50], [x - 20, y + 40], [x + 45, y + 50]].forEach(([sx, sy], i) => doodleStar(sx, sy, 9 + 3 * ((B + i) % 3 === 0), key + 'st' + i, { w: 2.2, col: '#f3eedb' }));
+  }
+  if (o.sun) {
+    const s = loopPts(x + 20, y - 25, 38, 38, 0.08);
+    scribbleFill(s, SK.hilite, { key: key + 'sf', gap: 9, w: 3.5, base: 0.5 }); gline(s, { w: 3.5, key: key + 's' });
+    for (let i = 0; i < 8; i++) { const a = i / 8 * TAU + TT * 0.3; gline([[x + 20 + Math.cos(a) * 48, y - 25 + Math.sin(a) * 48], [x + 20 + Math.cos(a) * 60, y - 25 + Math.sin(a) * 60]], { w: 3, key: key + 'r' + i, second: false }); }
+  }
+  gline(P, { w: 5, key: key + 'fr' });
+  gline([[x, y - h / 2], [x, y + h / 2]], { w: 3.5, key: key + 'v', second: false });
+  gline([[x - w / 2, y], [x + w / 2, y]], { w: 3.5, key: key + 'h', second: false });
+}
+function wallClock(x, y, r, key, night) {
+  const P = loopPts(x, y, r, r, 0.06);
+  gfill(P, SK.sheet, { off: [3, 3], key: key + 'f', a: night ? 0.55 : 1 }); gline(P, { w: 4, key: key + 'o' });
+  for (let i = 0; i < 12; i++) { const a = i / 12 * TAU; gline([[x + Math.cos(a) * r * 0.78, y + Math.sin(a) * r * 0.78], [x + Math.cos(a) * r * 0.9, y + Math.sin(a) * r * 0.9]], { w: 2.2, key: key + 't' + i, second: false, amp: 0.2 }); }
+  const hr = night ? -Math.PI / 2 + TAU * (10.5 / 12) : -Math.PI / 2 + TAU * (8 / 12), mn = -Math.PI / 2 + TAU * (B % 60) / 60;
+  gline([[x, y], [x + Math.cos(hr) * r * 0.5, y + Math.sin(hr) * r * 0.5]], { w: 5, key: key + 'hr', second: false });
+  gline([[x, y], [x + Math.cos(mn) * r * 0.75, y + Math.sin(mn) * r * 0.75]], { w: 3, key: key + 'mn', second: false });
+}
+function plant(x, y, s, key) {
+  const pot = [[x - 40 * s, y - 70 * s], [x + 40 * s, y - 70 * s], [x + 30 * s, y], [x - 30 * s, y]];
+  gfill(pot, SK.wood, { key: key + 'p' }); gline(pot, { closed: true, w: 4, key: key + 'po' });
+  for (let i = 0; i < 5; i++) {
+    const a = -Math.PI / 2 + (i - 2) * 0.42 + 0.04 * Math.sin(TT * 2 + i), L = (90 + 22 * (i % 2)) * s;
+    const b = [x + Math.cos(a) * L, y - 70 * s + Math.sin(a) * L], m = [x + Math.cos(a) * L * 0.5 + 14 * s, y - 70 * s + Math.sin(a) * L * 0.5];
+    gline([[x, y - 70 * s], m, b, [x + Math.cos(a) * L * 0.5 - 10 * s, y - 70 * s + Math.sin(a) * L * 0.55], [x, y - 70 * s]], { w: 3.2, key: key + 'l' + i, second: false });
+  }
+}
+function beanbag(x, y, key) {
+  const P = [[x - 210, y + 150], [x - 230, y + 60], [x - 170, y - 20], [x - 60, y - 40], [x + 60, y - 20], [x + 150, y + 30], [x + 200, y + 150]];
+  gfill(P, SK.sheet, { off: [4, 4], key: key + 'f' });
+  ctx.save(); gclip(P); ghatch(x - 240, y - 50, x + 210, y + 160, { ang: -0.8, gap: 13, col: SK.graph, w: 2, a: 0.35, key: key + 'h' }); ctx.restore();
+  gline(P, { closed: true, w: 5, key: key + 'o' });
+}
+
+// ---- era 0 and 7: the room (night at the start; daylight at the end, the tablet face-down)
+function sceneRoom(day) {
+  const cu = TIMELINE.cues, [sx, sy, sr] = ROOM.sam, [tx, ty, tw, th, trot] = ROOM.tab;
+  sketchPage({ grid: 'dots', tint: day ? null : NIGHT, tintA: 0.58 });
+  // floor line, rug, the window, clock, plant
+  gpencil([[70, 1215], [400, 1210], [700, 1218], [1000, 1212]], { key: 'floor', w: 3, a: 0.8 });
+  gpencil(loopPts(500, 1240, 330, 34, 0.05), { key: 'rug', w: 2.6, a: 0.55 });
+  windowFrame(ROOM.win[0], ROOM.win[1], ROOM.win[2], ROOM.win[3], 'win', day ? '#dfeaf0' : '#1c2436', { moon: !day, sun: day });
+  wallClock(790, 560, 74, 'clock', !day);
+  plant(870, 1210, 0.95, 'plant');
+  beanbag(sx, sy + 90, 'bag');
+  if (!day) {
+    // night: hunched over the glow
+    // a pool of screen light on the dark page, then the tablet and the cone onto Sam's face
+    const pool = loopPts(tx - 80, ty - 20, 330, 250, 0.05);
+    ctx.save(); ctx.globalAlpha = 0.18; scribbleFill(pool, SK.hilite, { key: 'pool', gap: 22, w: 3, base: 0.35 }); ctx.restore();
+    glowCone([tx - 30, ty - 20], [sx + 30, sy - 20], 130, 0.85, 'cone');
+    const inner = tablet(tx, ty, tw, th, trot, 1, 'tab');
+    doodleHero(sx, sy, sr, { key: 'sam', legs: true, mood: 'calm', look: [1, 0.6], sx: 1.02, sy: 0.96, arms: [-1.2, -0.25], rot: 0.08 });
+    // a sparkle on the screen on 2s: the feed refreshing
+    sparkle(tx + 30, ty - 20, 22, (B % 6) / 6, 'tabspk');
+    // the time and the dark
+    pageTag('~5 hrs a day');
+    pageCaption(['a glowing', 'rectangle'], [[1, 'rectangle']], { at: 0.6 });
+  } else {
+    // daylight: the tablet face-down on the rug; Sam drawing in a sketchbook
+    tablet(tx + 120, 1205, tw, 30, 0, 0, 'tabdown', { faceDown: true });
+    const bk = [[sx + 70, sy + 40], [sx + 230, sy + 10], [sx + 250, sy + 110], [sx + 90, sy + 140]];
+    gfill(bk, SK.sheet, { off: [3, 3], key: 'book' }); gline(bk, { closed: true, w: 4.5, key: 'booko' });
+    gpencil([[sx + 120, sy + 60], [sx + 160, sy + 50], [sx + 200, sy + 70]], { key: 'bookdoodle', w: 2.4, part: ev(E0 + 0.6, 1.5) });
+    const hop = Math.sin(Math.PI * ev(cu.balance, 0.3));
+    doodleHero(sx, sy - 40 * hop, sr, { key: 'sam', legs: true, mood: 'happy', look: [0.6, 0.3], arms: [-0.6, -0.1] });
+    paperPlaneLoop('pp', 820, 820);
+    pageTag('balance');
+    pageCaption(['balance is', 'the skill'], [[1, 'skill']], { at: Math.max(0.6, cu.balance - E0 - 0.3) });
+  }
+}
+function paperPlaneLoop(key, cx, cy) {
+  const at = (p) => [cx + 110 * Math.sin(TAU * p), cy + 50 * Math.sin(2 * TAU * p)];
+  const p = TT / 3.4, trail = [];
+  for (let i = 0; i <= 24; i++) trail.push(at(p - 0.35 + 0.35 * i / 24));
+  ctx.save(); ctx.setLineDash([10, 12]); gpencil(trail, { key: key + 'tr', w: 2.2, a: 0.6, passes: 1, amp: 1 }); ctx.restore();
+  const [x, y] = at(p), [x2, y2] = at(p + 0.01);
+  paperPlane(x, y, Math.atan2(y2 - y, x2 - x), 1.15, key);
+}
+// =====================================================================
+//  SCENES — the brain (era 2) and the morning (era 6)
+// =====================================================================
+const BRAIN = { x: 470, y: 720, s: 1.1 };
+const BRAIN_REL = [[250, 40], [292, -30], [282, -112], [232, -182], [142, -232], [30, -252], [-82, -242], [-182, -202], [-262, -132], [-302, -42], [-292, 50], [-242, 110],
+  [-200, 142], [-140, 170], [-80, 160], [-52, 122], [0, 112], [80, 122], [160, 102], [222, 80]];
+const brainPts = (x = BRAIN.x, y = BRAIN.y, s = BRAIN.s) => BRAIN_REL.map(([a, b]) => [x + a * s, y + b * s]);
+const FRONTAL = () => [BRAIN.x + 185 * BRAIN.s, BRAIN.y - 95 * BRAIN.s, 92 * BRAIN.s];   // the front of the brain (x, y, r)
+const REWARD = () => [BRAIN.x + 55 * BRAIN.s, BRAIN.y + 30 * BRAIN.s];
+// sulci: graphite folds, fixed by key, boiling only in tremor
+function brainFolds(P, key, a = 0.7) {
+  const { x, y, s } = BRAIN;
+  ctx.save(); gclip(P);
+  const R = RNG(key);
+  for (let i = 0; i < 9; i++) {
+    const y0 = y - 210 * s + i * 42 * s, Q = [];
+    for (let k = 0; k <= 10; k++) Q.push([x - 300 * s + k * 60 * s, y0 + Math.sin(k * 1.3 + i) * 18 * s + R.r(-6, 6)]);
+    gpencil(Q, { key: key + i, w: 2.6, a, passes: 1, amp: 2 });
+  }
+  ctx.restore();
+  gline([[x - 30 * s, y + 40 * s], [x + 60 * s, y + 10 * s], [x + 140 * s, y - 5 * s], [x + 215 * s, y - 20 * s]], { w: 4, key: key + 'lat', second: false });   // the lateral fissure
+}
+function brainDraw(key, o = {}) {
+  const P = brainPts(), { x, y, s } = BRAIN;
+  // the stem and the little cerebellum hatch
+  const stem = [[x - 40 * s, y + 120 * s], [x - 30 * s, y + 250 * s], [x + 15 * s, y + 250 * s], [x + 12 * s, y + 116 * s]];
+  gfill(stem, SK.sheet, { off: [3, 3], key: key + 'stf' }); gline(stem, { w: 4.5, key: key + 'st' });
+  gfill(P, o.fill ?? '#f6e3dc', { off: [6, 5], key: key + 'f' });
+  brainFolds(P, key + 'fold', o.foldA ?? 0.6);
+  ctx.save(); gclip(P); ghatch(x - 230 * s, y + 90 * s, x - 40 * s, y + 175 * s, { ang: -0.9, gap: 8, col: SK.graph, w: 2, a: 0.5, key: key + 'cbh' }); ctx.restore();
+  gline(P, { closed: true, w: 6, key: key + 'o', part: o.part ?? 1 });
+  return P;
+}
+function dopaChart(t0, key) {
+  // a hand-drawn graph: dopamine spikes on "maybe…?" and barely moves on "got it"
+  const X0 = 170, X1 = 840, Y0 = 1225, Y1 = 1040;
+  gline([[X0, Y1 - 20], [X0, Y0], [X1, Y0]], { w: 4, key: key + 'ax', part: ev(t0, 0.4), second: false });
+  handLetter('dopamine', X0 + 10, Y1 - 40, 40, { align: 'left', col: SK.graph, key: key + 'yl', reveal: ev(t0 + 0.2, 0.4) });
+  const curve = [];
+  for (let i = 0; i <= 60; i++) {
+    const u = i / 60, x = lerp(X0 + 10, X1 - 10, u);
+    const v = 0.12 + 0.88 * Math.exp(-((u - 0.36) ** 2) / 0.006) + 0.18 * Math.exp(-((u - 0.78) ** 2) / 0.004);
+    curve.push([x, Y0 - 12 - v * (Y0 - Y1 - 30)]);
+  }
+  const draw = ev(t0 + 0.5, TIMELINE.cues.prize - t0 - 0.2);
+  gline(curve, { w: 5.5, key: key + 'cv', part: draw, step: 5 });
+  if (draw > 0.38) {
+    const pk = curve[22];
+    sparkle(pk[0], pk[1] - 10, 34, ((B % 4) / 4), key + 'pk');
+    handLetter('maybe…?', pk[0] + 30, pk[1] + 6, 52, { align: 'left', key: key + 'mb', reveal: ev(TIMELINE.cues.chase - 0.6, 0.35) });
+  }
+  if (draw > 0.82) {
+    const g = curve[47];
+    handLetter('got it', g[0] - 10, g[1] - 26, 44, { align: 'left', col: SK.graph, key: key + 'gi', reveal: ev(TIMELINE.cues.prize - 0.2, 0.3) });
+  }
+}
+// ---- era 2: dopamine fires for the chase
+function sceneDopa() {
+  const cu = TIMELINE.cues;
+  sketchPage({ grid: 'dots' });
+  brainDraw('br', { part: ev(E0 + 0.1, 0.6) });
+  // the reward centre: pulses yellow each time a "maybe" arrives (the screen's glow, acting inside)
+  const [rx, ry] = REWARD();
+  const pulse = Math.max(0, Math.sin(TAU * (TT - E0) / 0.75)) * ev(E0 + 0.7, 0.3);
+  const RP = loopPts(rx, ry, 40 + 10 * pulse, 34 + 9 * pulse, 0.08);
+  scribbleFill(RP, SK.hilite, { key: 'rew', gap: 9, w: 3.6, base: 0.3 + 0.5 * pulse, part: ev(E0 + 0.7, 0.4) });
+  gline(RP, { w: 4, key: 'rewo', part: ev(E0 + 0.7, 0.3) });
+  for (let i = 0; i < 7; i++) {   // dopamine sparks drifting up out of it
+    const ph = ((TT - E0) * 0.9 + i / 7) % 1, a = -Math.PI / 2 + (i - 3) * 0.35;
+    if (TT < E0 + 0.9) break;
+    const d = 50 + 170 * ph, px = rx + Math.cos(a) * d, py = ry + Math.sin(a) * d;
+    ctx.save(); ctx.globalAlpha = 1 - ph; ctx.fillStyle = SK.hilite; ctx.beginPath(); ctx.arc(px, py, 11 - 5 * ph, 0, TAU); ctx.fill(); ctx.restore();
+    gline(loopPts(px, py, 11 - 5 * ph, 11 - 5 * ph, 0.1), { w: 2, key: 'dsp' + i, second: false, a: 1 - ph });
+  }
+  // labels: "reward", "want more!"
+  arrowPencil([[150, 470], [260, 560], [rx - 50, ry - 10]], ev(E0 + 1.0, 0.4));
+  handLetter('reward', 140, 440, 50, { col: SK.ink, key: 'rwl', reveal: ev(E0 + 1.1, 0.3) });
+  handLetter('want more!', 760, 400, 58, { face: 'marker', key: 'wm', rot: -0.05, reveal: ev(VW('dopa', 'want') - 0.1, 0.35) });
+  arrowPencil([[700, 430], [640, 520], [rx + 30, ry - 60]], ev(VW('dopa', 'want'), 0.35));
+  dopaChart(E0 + 1.6, 'ch');
+  pageTag('dopamine');
+  pageCaption(['fires for', 'the chase'], [[1, 'chase']], { at: Math.max(1.0, cu.chase - E0 - 0.5), y: 1370, size: 74 });
+}
+
+// ---- era 6: morning — the glow became the sun
+const SUN6 = { x: 740, y: 470, r: 125 };
+function friendDoodle(x, y, r, o = {}) {   // a friend: ink and graphite only (the colour is Sam's)
+  const key = o.key ?? 'fr', lw = Math.max(3, r * 0.065);
+  ctx.save(); ctx.translate(x, y);
+  for (const s of [-1, 1]) {
+    gline([[s * r * 0.3, r * 0.85], [s * r * 0.36, r * 1.42]], { w: lw, key: key + 'lg' + s, second: false, step: 8 });
+    gline([[s * r * 0.36, r * 1.42], [s * r * 0.58, r * 1.42]], { w: lw * 1.2, key: key + 'ft' + s, second: false, step: 6 });
+  }
+  (o.arms ?? [0.3, 0.3]).forEach((ang, i) => { const s = i ? 1 : -1, sh = [s * r * 0.9, r * 0.1], hd = [sh[0] + s * r * 0.8 * Math.cos(ang), sh[1] - r * 0.8 * Math.sin(ang)]; gline([sh, hd], { w: lw, key: key + 'a' + s, second: false, step: 8 }); });
+  const body = [...loopPts(0, 0, r, r * 0.92, 0, 0, 40)];
+  gfill(body, SK.sheet, { off: [r * 0.05, r * 0.05], key: key + 'f' });
+  litHatch(body, { ang: -0.85, gap: Math.max(6, r * 0.09), col: SK.graph, w: 2, a: 0.6, key: key + 'h' });
+  gline(loopPts(0, 0, r, r * 0.92, 0.08), { w: lw, key: key + 'o' });
+  for (const s of [-1, 1]) { ctx.fillStyle = SK.ink; ctx.beginPath(); ctx.ellipse(s * r * 0.3, 0, r * 0.08, r * 0.11, 0, 0, TAU); ctx.fill(); }
+  ctx.fillStyle = SK.ink; ctx.beginPath(); ctx.moveTo(-r * 0.2, r * 0.3); ctx.quadraticCurveTo(0, r * 0.6, r * 0.2, r * 0.3); ctx.closePath(); ctx.fill();
+  gline([[-r * 0.5, -r * 0.75], [-r * 0.2, -r * 1.0], [r * 0.15, -r * 0.82]], { w: lw, key: key + 'hair', second: false });
+  ctx.restore();
+}
+function sunDraw(x, y, r, key, grow = 1) {
+  const SP = ellipsePts(x, y, r, r, 0, 64);
+  for (let i = 0; i < 14; i++) {
+    const a = i / 14 * TAU + TT * 0.25, r0 = r * 1.18, r1 = r * (1.42 + 0.1 * ((B + i) % 2));
+    gline([[x + Math.cos(a) * r0, y + Math.sin(a) * r0], [x + Math.cos(a) * r1, y + Math.sin(a) * r1]], { w: 5, key: key + 'ray' + i, part: grow, second: false, amp: 0.8, step: 8 });
+  }
+  scribbleFill(SP, SK.hilite, { key: key + 'f', gap: 12, w: 4.5, base: 0.4 });
+  gline(loopPts(x, y, r, r, 0.06), { key: key + 'o', w: 6 });
+}
+function sceneMorning() {
+  const cu = TIMELINE.cues;
+  sketchPage({ grid: 'dots' });
+  sunDraw(SUN6.x, SUN6.y, SUN6.r, 'sun6', ev(E0, 0.5));
+  for (let i = 0; i < 3; i++) doodleBird(160 + 80 * (TT - E0) + i * 60, 760 + i * 30 - (i % 2) * 14, 1.2 - i * 0.2, (B + i) % 2, 'bd' + i);
+  // the hill and grass
+  const hill = [[-160, 1260], [120, 1190], [420, 1150], [700, 1160], [1000, 1200], [1240, 1250]];
+  gline(hill, { key: 'hill', w: 6 });
+  for (let i = 0; i < 18; i++) { const x = 90 + i * 48, y = 1185 + 8 * Math.sin(i * 1.7); gpencil([[x, y], [x + 6, y - 22 - 6 * ((B + i) % 2)]], { key: 'gr' + i, w: 2.4, a: 0.7, passes: 1 }); }
+  // the checklist in a thought cloud: sleep, play, real faces — each ticked on its word
+  const cl = xform([...arcPts(250, 540, 80, Math.PI * 0.7, Math.PI * 1.55, 8), ...arcPts(370, 440, 110, Math.PI * 1.1, Math.PI * 1.95, 8), ...arcPts(500, 540, 90, Math.PI * 1.5, Math.PI * 2.4, 8), ...arcPts(380, 680, 120, Math.PI * 0.05, Math.PI * 0.9, 8), ...arcPts(230, 650, 70, Math.PI * 0.5, Math.PI * 1.15, 6)], -20, 10);
+  gfill(cl, SK.sheet, { off: [4, 4], key: 'cloudf' }); gline(cl, { closed: true, w: 4.5, key: 'cloud', part: ev(E0 + 0.3, 0.5) });
+  [[cu.sleep, 'sleep'], [cu.play, 'play'], [cu.faces, 'real faces']].forEach(([t, w], i) => {
+    const y = 490 + i * 82;
+    checkMark(200, y - 12, 0.8, ev(t, 0.25));
+    handLetter(w, 245, y, 54, { align: 'left', key: 'ck' + i, reveal: ev(t - 0.05, 0.3) });
+  });
+  for (let i = 0; i < 3; i++) gline(loopPts(320 + i * 30, 800 + i * 44, 14 - i * 3, 14 - i * 3, 0.1), { w: 3, key: 'tb' + i, second: false });
+  // Sam and a friend playing catch; the ball arcs between them on 2s
+  const per = 1.6, ph = ((TT - E0) / per) % 1, dir = Math.floor((TT - E0) / per) % 2;
+  const A = [400, 960], Bp = [780, 980], u = dir ? 1 - ph : ph;
+  const bx = lerp(A[0], Bp[0], u), by = lerp(A[1], Bp[1], u) - 260 * Math.sin(Math.PI * u);
+  const hopS = Math.sin(Math.PI * clamp(((TT - E0) % (per * 2)) / 0.3)) * (dir ? 0 : 1);
+  doodleHero(330, 1010 - 30 * hopS, 100, { key: 'sam', legs: true, mood: 'happy', look: [0.8, -0.6], arms: [-0.5, 1.2], sy: 1 + 0.05 * hopS });
+  friendDoodle(820, 1020, 92, { key: 'friend', arms: [1.1, -0.4] });
+  const BP = loopPts(bx, by, 26, 26, 0.1);
+  gfill(BP, SK.sheet, { off: [2, 2], key: 'ballf' }); gline(BP, { w: 4, key: 'ball' }); gline([[bx - 24, by], [bx + 24, by]], { w: 2.5, key: 'balls', second: false });
+  pageTag('good news');
+  pageCaption(['built to', 'change'], [[1, 'change']], { at: 0.8, y: 1370 });
+}
+// =====================================================================
+//  SCENES — swipe (1), brakes (3), night (4), cost (5)
+// =====================================================================
+const PH = { x: 500, y: 790, w: 500, h: 820 };
+const phoneInner = () => rrectPts(PH.x - PH.w / 2 + 24, PH.y - PH.h / 2 + 70, PH.w - 48, PH.h - 140, 16, 6);
+
+// ---- era 1: every swipe is a tiny gamble
+const FEED = ['meh', 'meh', 'wow', 'meh', '?'];
+function feedCard(kind, x, y, w, h, key) {
+  const P = rrectPts(x - w / 2, y - h / 2, w, h, 14, 5);
+  gfill(P, SK.sheet, { off: [4, 4], key: key + 'f' }); gline(P, { closed: true, w: 3.5, key: key + 'o', second: false });
+  if (kind === 'meh') { graphiteScribble(x, y - 20, w * 0.55, h * 0.4, key + 'sc'); handLetter('meh', x, y + h * 0.36, 44, { col: SK.graph, key: key + 'l' }); }
+  else if (kind === 'wow') {
+    for (let i = 0; i < 10; i++) { const a = i / 10 * TAU + B * 0.1; gline([[x + Math.cos(a) * 70, y - 20 + Math.sin(a) * 70], [x + Math.cos(a) * 110, y - 20 + Math.sin(a) * 110]], { w: 4, key: key + 'r' + i, second: false }); }
+    const S = loopPts(x, y - 20, 58, 58, 0.08); scribbleFill(S, SK.hilite, { key: key + 'sf', gap: 9, w: 3.6, base: 0.5 }); gline(S, { w: 4, key: key + 'so' });
+    handLetter('WOW!', x, y + h * 0.36, 52, { face: 'marker', key: key + 'l' });
+  } else handLetter('?', x, y, 140, { col: SK.graph, key: key + 'q' });
+}
+function sceneSwipe() {
+  const cu = TIMELINE.cues;
+  sketchPage({ grid: 'dots' });
+  const swipes = [E0 + 0.55, E0 + 1.35, E0 + 2.05, E0 + 2.75];
+  let off = 0; swipes.forEach((t) => { off += EZ.io(ev(t, 0.3)); });
+  // the phone, its glowing screen, the feed scrolling inside it
+  const body = rrectPts(PH.x - PH.w / 2, PH.y - PH.h / 2, PH.w, PH.h, 46, 6), inner = phoneInner();
+  gfill(body, SK.lead, { off: [6, 6], key: 'phb', a: 0.92 });
+  gfill(inner, '#fff6c8', { off: [0, 0], key: 'phs' }); scribbleFill(inner, SK.hilite, { key: 'phsc', gap: 13, w: 3.5, base: 0.35 });
+  ctx.save(); gclip(inner);
+  const cardH = 440, step = 520, top = PH.y - 30;
+  FEED.forEach((k, i) => { const y = top + i * step - off * step; if (y > PH.y - 800 && y < PH.y + 800) feedCard(k, PH.x, y, PH.w - 110, cardH, 'card' + i); });
+  ctx.restore();
+  gline(body, { closed: true, w: 6, key: 'pho' }); gline(inner, { closed: true, w: 3, key: 'phi', second: false });
+  gline([[PH.x - 40, PH.y - PH.h / 2 + 36], [PH.x + 40, PH.y - PH.h / 2 + 36]], { w: 5, key: 'spk', second: false });
+  // the thumb: a doodled hand that flicks up on each swipe
+  let k = 0; swipes.forEach((t) => { const u = ev(t - 0.05, 0.3); if (u > 0 && u < 1) k = Math.sin(Math.PI * u); });
+  const hx = PH.x + 150, hy = PH.y + 330 - 220 * k;
+  const thumb = [[hx - 40, hy + 260], [hx - 42, hy + 40], [hx - 30, hy - 10], [hx, hy - 24], [hx + 30, hy - 10], [hx + 42, hy + 40], [hx + 50, hy + 260]];
+  gfill(thumb, SK.sheet, { off: [4, 4], key: 'thf' }); gline(thumb, { w: 5, key: 'th' });
+  gline(arcPts(hx, hy + 10, 22, Math.PI * 1.15, Math.PI * 1.85, 6), { w: 2.8, key: 'nail', second: false });
+  // the tally in the margin: meh, meh, WOW!, ?
+  ['meh', 'meh', 'WOW!', '?'].forEach((w, i) => {
+    const t = swipes[i] + 0.3; if (TT < t) return;
+    handLetter(w, 150, 540 + i * 150, w === 'WOW!' ? 50 : 42, { face: w === 'WOW!' ? 'marker' : 'hand', col: w === 'WOW!' ? SK.ink : SK.graph, key: 'tally' + i, reveal: ev(t, 0.2) });
+  });
+  if (TT >= swipes[2] + 0.3) sparkle(150, 820, 70, ((B % 4) / 4), 'tsp');
+  pageTag('swipe');
+  pageCaption(['a tiny', 'gamble'], [[1, 'gamble']], { at: Math.max(0.6, cu.gamble - E0 - 0.4), y: 1370 });
+}
+
+// ---- era 3: the brakes are still in pencil
+const BIKE = { bx: 300, fx: 690, y: 1050, r: 120 };
+function wheel(x, y, r, key, spin) {
+  const P = loopPts(x, y, r, r, 0.05);
+  gline(P, { w: 6, key: key + 'o' }); gline(loopPts(x, y, r - 12, r - 12, 0.04), { w: 2.4, key: key + 'i', second: false });
+  for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI + spin; gline([[x - Math.cos(a) * (r - 14), y - Math.sin(a) * (r - 14)], [x + Math.cos(a) * (r - 14), y + Math.sin(a) * (r - 14)]], { w: 2, key: key + 's' + i, second: false, col: SK.graph }); }
+  ctx.fillStyle = SK.ink; ctx.beginPath(); ctx.arc(x, y, 9, 0, TAU); ctx.fill();
+}
+function sceneBrakes() {
+  const cu = TIMELINE.cues, { bx, fx, y, r } = BIKE, spin = -B * 0.5;
+  sketchPage({ grid: 'dots' });
+  // the road rushing past: dashes that step left on 2s
+  gline([[40, y + r + 4], [1040, y + r + 4]], { w: 5, key: 'road' });
+  for (let i = 0; i < 7; i++) { const x = mod(900 - (TT - E0) * 520 + i * 180, 1260) - 120; gpencil([[x, y + r + 40], [x + 70, y + r + 40]], { key: 'dash' + i, w: 3, a: 0.6, passes: 1 }); }
+  for (let i = 0; i < 4; i++) gpencil([[90 - (B % 2) * 12, 830 + i * 60], [190 - (B % 2) * 12, 830 + i * 60]], { key: 'spd' + i, w: 3, a: 0.6, passes: 1 });
+  wheel(bx, y, r, 'bw', spin); wheel(fx, y, r, 'fw', spin);
+  // the frame (ink), the seat and the handlebar
+  const seat = [bx + 130, y - 180], bar = [fx - 40, y - 230];
+  gline([[bx, y], [bx + 150, y - 10], [fx, y]], { w: 6, key: 'fr1' });
+  gline([[bx, y], [seat[0], seat[1] + 20], [bx + 150, y - 10]], { w: 6, key: 'fr2' });
+  gline([[seat[0], seat[1] + 20], [bar[0] - 20, bar[1] + 40], [fx, y]], { w: 6, key: 'fr3' });
+  gline([[seat[0] - 50, seat[1]], [seat[0] + 40, seat[1] - 6]], { w: 10, key: 'seat', second: false });
+  gline([[bar[0] - 20, bar[1] + 40], [bar[0], bar[1]], [bar[0] + 70, bar[1] - 10]], { w: 6, key: 'bar' });
+  // THE BRAKES: construction lines in pencil only, never inked — still being wired
+  const lev = [[bar[0] + 60, bar[1] + 6], [bar[0] + 110, bar[1] + 50], [bar[0] + 90, bar[1] + 64]];
+  ctx.save(); ctx.setLineDash([12, 10]);
+  gpencil(lev, { key: 'lever', w: 3, a: 0.9, part: ev(E0 + 0.5, 0.5) });
+  gpencil([[bar[0] + 100, bar[1] + 58], [fx + 30, y - 120], [fx + 20, y - r + 10]], { key: 'cable', w: 2.6, a: 0.8, part: ev(E0 + 0.8, 0.6) });
+  gpencil(loopPts(fx + 10, y - r + 4, 30, 18, 0.1), { key: 'caliper', w: 2.6, a: 0.8, part: ev(E0 + 1.2, 0.4) });
+  ctx.restore();
+  // the pencil still drawing them
+  if (TT < E0 + 4.6) { const tip = writeEnd(lev, ((TT - E0) * 0.6) % 1); pencilTool(tip[0], tip[1], -0.75 + 0.08 * Math.sin(B * 1.7), 0.9); }
+  // Sam riding, leaning forward, a little worried
+  doodleHero(bx + 140, y - 268, 96, { key: 'sam', mood: 'puzzled', look: [1, 0.2], arms: [-0.3, -0.25], rot: 0.12 });
+  for (let i = 0; i < 2; i++) sweat(bx + 40 - i * 14, y - 360 + i * 10, ((TT * 1.2 + i * 0.5) % 1), 'sw' + i);
+  // the label: prefrontal cortex = the brakes
+  handLetter('prefrontal', 700, 620, 54, { key: 'pfc1', reveal: ev(cu.enough + 0.4, 0.35) });
+  handLetter('cortex', 700, 680, 54, { key: 'pfc2', reveal: ev(cu.enough + 0.6, 0.3) });
+  arrowPencil([[720, 710], [740, 760], [bar[0] + 100, bar[1] + 30]], ev(cu.enough + 0.8, 0.35));
+  // the age ruler: wiring from childhood to ~25
+  const RX0 = 180, RX1 = 860, RY = 500;
+  gline([[RX0, RY], [RX1, RY]], { w: 4, key: 'rul', part: ev(E0 + 0.3, 0.4), second: false });
+  [[RX0, '10'], [lerp(RX0, RX1, 0.5), '17'], [RX1, '25']].forEach(([x, s], i) => {
+    gline([[x, RY - 14], [x, RY + 14]], { w: 3, key: 'tk' + i, second: false, part: ev(E0 + 0.4, 0.2) });
+    handLetter(s, x, RY + 60, 42, { col: SK.graph, key: 'ag' + i, reveal: ev(E0 + 0.5 + i * 0.1, 0.2) });
+  });
+  const fill = lerp(0.05, 0.22, ev(E0 + 0.6, 2));
+  ctx.save(); ctx.setLineDash([16, 10]); gpencil([[RX0, RY - 28], [lerp(RX0, RX1, fill), RY - 28]], { key: 'wire', w: 5, a: 0.9, passes: 1 }); ctx.restore();
+  handLetter('wiring…', lerp(RX0, RX1, fill) + 20, RY - 40, 40, { align: 'left', col: SK.graph, key: 'wiring' });
+  pageTag('the brakes');
+  pageCaption(['still wiring', 'until ~25'], [[0, 'wiring']], { at: 1.0, y: 1390, size: 74 });
+}
+
+// ---- era 4: night — screen light holds melatonin back
+const MOON4 = { x: 760, y: 560, r: 102 };
+function sceneNight() {
+  const cu = TIMELINE.cues;
+  sketchPage({ grid: 'dots', tint: NIGHT, tintA: 0.58 });
+  // the window and the moon
+  const WP = rrectPts(MOON4.x - 150, MOON4.y - 150, 300, 300, 8);
+  gfill(WP, '#1c2436', { off: [0, 0], key: 'nw' });
+  const MP = loopPts(MOON4.x, MOON4.y, MOON4.r, MOON4.r, 0.06);
+  gfill(MP, '#f3eedb', { off: [0, 0], key: 'nmf' }); gline(MP, { w: 4, key: 'nm', col: SK.ink, second: false });
+  [[MOON4.x - 110, MOON4.y - 100], [MOON4.x + 110, MOON4.y + 90], [MOON4.x - 90, MOON4.y + 110]].forEach(([x, y], i) => doodleStar(x, y, 12 + 4 * ((B + i) % 3 === 0), 'nst' + i, { w: 2.4, col: '#f3eedb' }));
+  gline(sketchBox(MOON4.x - 150, MOON4.y - 150, 300, 300, 8, 0.03), { w: 5, key: 'nwf' });
+  // the bed, Sam under the blanket, the tablet held up over the face
+  const bed = [[110, 1180], [110, 1010], [900, 1010], [900, 1180]];
+  gfill(bed, SK.wood, { key: 'bedf', a: 0.9 }); gline(bed, { closed: true, w: 5, key: 'bed' });
+  gline([[110, 1180], [110, 1250]], { w: 6, key: 'leg1', second: false }); gline([[900, 1180], [900, 1250]], { w: 6, key: 'leg2', second: false });
+  const pillow = loopPts(250, 990, 120, 40, 0.05); gfill(pillow, SK.sheet, { key: 'pilf' }); gline(pillow, { w: 4, key: 'pil' });
+  doodleHero(290, 920, 100, { key: 'sam', mood: 'wow', look: [1, -0.7], arms: [null, 1.0] });
+  const blanket = [[300, 1000], [380, 960], [880, 950], [900, 1060], [320, 1080]];
+  gfill(blanket, '#cfd6e6', { key: 'blf' }); ctx.save(); gclip(blanket); ghatch(290, 940, 910, 1090, { ang: 0.8, gap: 14, col: SK.graph, w: 2, a: 0.4, key: 'blh' }); ctx.restore();
+  gline(blanket, { closed: true, w: 5, key: 'bl' });
+  const tx = 450, ty = 790;
+  glowCone([tx - 20, ty + 20], [300, 900], 110, 0.85, 'ncone');
+  tablet(tx, ty, 190, 130, 0.5, 1, 'ntab');
+  // the body clock: "still day?" in the glow
+  if (TT < cu.sensitive - 0.3) handLetter('"still day?"', 740, 840, 52, { col: '#f3eedb', key: 'sd', reveal: ev(E0 + 1.2, 0.4), rot: -0.06 });
+  // melatonin: a queue of z's held behind a gate the screen light keeps shut
+  const gx = 200, gy = 1350 - 0;
+  handLetter('melatonin', 150, 480, 52, { align: 'left', key: 'mel', reveal: ev(cu.melatonin - 0.1, 0.35) });
+  gline([[130, 500], [130, 690]], { w: 5, key: 'gate1', second: false }); gline([[380, 500], [380, 690]], { w: 5, key: 'gate2', second: false });
+  for (let i = 0; i < 3; i++) gline([[130, 530 + i * 60], [380, 530 + i * 60]], { w: 4, key: 'gb' + i, second: false, col: SK.hilite });
+  for (let i = 0; i < 4; i++) {
+    if (TT < cu.melatonin + i * 0.12) continue;
+    const bob = 8 * Math.sin(B * 1.3 + i);
+    handLetter('z', 170 + i * 58, 640 + bob - (i % 2) * 30, 58 - i * 4, { face: 'marker', col: '#f3eedb', key: 'z' + i });
+  }
+  handLetter('waits…', 255, 760, 44, { col: '#f3eedb', key: 'wt', reveal: ev(cu.melatonin + 0.6, 0.3) });
+  // the margin note: kids' eyes are extra sensitive
+  if (TT > cu.sensitive - 0.3) {
+    const ex = 760, ey = 830, u = ev(cu.sensitive - 0.3, 0.3);
+    const eye = [...arcPts(ex, ey + 40, 80, Math.PI * 1.2, Math.PI * 1.8, 10), ...arcPts(ex, ey - 40, 80, Math.PI * 0.2, Math.PI * 0.8, 10)];
+    gfill(eye, SK.sheet, { off: [0, 0], key: 'eyef' }); gline(eye, { closed: true, w: 4, key: 'eye', part: u });
+    ctx.fillStyle = SK.ink; ctx.beginPath(); ctx.arc(ex, ey, 22, 0, TAU); ctx.fill();
+    handLetter('kids: extra', ex, ey + 80, 40, { col: '#f3eedb', key: 'ks1', reveal: ev(cu.sensitive, 0.3) });
+    handLetter('sensitive', ex, ey + 124, 40, { col: '#f3eedb', key: 'ks2', reveal: ev(cu.sensitive + 0.15, 0.3) });
+  }
+  pageTag('night');
+  pageCaption(['melatonin', 'waits'], [[0, 'melatonin']], { at: Math.max(0.8, cu.melatonin - E0 - 0.2), y: 1380 });
+}
+
+// ---- era 5: the cost, then the tablet goes face-down and its glow lifts off
+const SAM5 = [380, 960, 120], DESK = 1120, TAB5 = [690, 1060];
+const GLOW = { x: 540, y: 600, r: 92 };
+function glowAt() {   // the glow disc: sits on the screen, then lifts to GLOW after the tablet flips
+  const u = EZ.io(ev(TIMELINE.cues.facedown + 0.25, (T6 - 0.6) - (TIMELINE.cues.facedown + 0.25)));
+  return [lerp(TAB5[0], GLOW.x, u), lerp(TAB5[1] - 30, GLOW.y, u), lerp(60, GLOW.r, u), u];
+}
+function sceneCost() {
+  const cu = TIMELINE.cues, flip = ev(cu.facedown, 0.25), down = flip >= 1;
+  sketchPage({ grid: 'dots', tint: '#8a8578', tintA: 0.12 });
+  gline([[80, DESK], [1000, DESK]], { w: 6, key: 'desk' }); gline([[140, DESK], [140, DESK + 200]], { w: 5, key: 'dl1', second: false }); gline([[920, DESK], [920, DESK + 200]], { w: 5, key: 'dl2', second: false });
+  // scattered focus: graphite tangles over Sam's head
+  [[230, 640, 150], [420, 560, 120], [610, 700, 110]].forEach(([x, y, s], i) => { if (TT > E0 + 0.3 + i * 0.25) graphiteScribble(x, y, s, s * 0.7, 'tang' + i); });
+  handLetter('?', 520, 470, 80, { col: SK.graph, key: 'q1' }); handLetter('!?', 160, 520, 64, { col: SK.graph, key: 'q2' });
+  // Sam: slumped, heavy lids, a yawn
+  const [sx, sy, sr] = SAM5;
+  doodleHero(sx, sy, sr, { key: 'sam', mood: down ? 'calm' : 'calm', look: [0.9, 0.5], sy: 0.92, sx: 1.05, rot: -0.1, arms: [-1.2, down ? -0.1 : -0.4] });
+  for (const s of [-1, 1]) gline([[sx + s * sr * 0.3 - 12, sy - 6], [sx + s * sr * 0.3 + 20, sy - 10]], { w: 5, key: 'lid' + s, second: false });
+  if (!down) for (let i = 0; i < 3; i++) handLetter('z', sx + 120 + i * 30, sy - 140 - i * 40 - 10 * ((TT * 2) % 1), 40 + i * 8, { col: SK.graph, key: 'zz' + i });
+  // the tablet: brightest just before it goes face-down
+  const [tx, ty] = TAB5;
+  if (!down) {
+    const pool = loopPts(tx, ty - 40, 260, 170, 0.05);
+    ctx.save(); ctx.globalAlpha = 0.28; scribbleFill(pool, SK.hilite, { key: 'pool5', gap: 18, w: 3, base: 0.4 }); ctx.restore();
+    tablet(tx, ty - 10 * flip, 220, 150 * (1 - 0.8 * flip), 0, 1, 'tab5');
+  } else tablet(tx, DESK - 16, 220, 28, 0, 0, 'tab5d', { faceDown: true });
+  // the glow lifts off the face-down tablet: the bridge object
+  if (down) {
+    const [gx, gy, gr] = glowAt(), GP = loopPts(gx, gy, gr, gr, 0.06);
+    scribbleFill(GP, SK.hilite, { key: 'glow', gap: 11, w: 4.2, base: 0.45 }); gline(GP, { w: 5, key: 'glowo' });
+  }
+  pageTag('the cost');
+  pageCaption(['less sleep', 'scattered focus'], [[1, 'scattered']], { at: 0.4, y: 1380, size: 76 });
+}
+// =====================================================================
+//  ERAS, CAMERAS, BRIDGES — The Glowing Rectangle (read by kit/morph.js)
+//  Each bridge sits in the pause between two voice lines; the camera pulls in on the bridge object first.
+// =====================================================================
+const ERA_BG = [NIGHT, '#f2ead8', '#f2ead8', '#f2ead8', NIGHT, '#ece4d2', '#f2ead8', '#f2ead8'];
+function pieceCam(era, t) {
+  const [tx, ty] = ROOM.tab;
+  if (era === 0) return push(t, T1 - 2.4, T1 - 0.6, { z: 1.45, p: [tx, ty], to: [540, 820] });                              // into the tablet
+  return null;
+}
+const circ = (x, y, r) => ellipsePts(x, y, r, r, 0, 96);
+const BRIDGES = [
+  { tc: T1, A: () => ({ P: tabletPts(...ROOM.tab, 14), c: SK.hilite }), B: () => ({ P: phoneInner(), c: SK.hilite }) },            // the tablet -> the phone screen
+  { tc: T2, A: () => ({ P: phoneInner(), c: SK.hilite }), B: () => ({ P: brainPts(), c: '#f6e3dc' }) },                           // the screen -> the brain
+  { tc: T3, A: () => { const [x, y, r] = FRONTAL(); return { P: circ(x, y, r), c: SK.graphL }; }, B: () => ({ P: circ(BIKE.fx, BIKE.y, BIKE.r), c: SK.graphL }) },   // the front of the brain -> the front wheel
+  { tc: T4, A: () => ({ P: circ(BIKE.fx, BIKE.y, BIKE.r), c: SK.graphL }), B: () => ({ P: circ(MOON4.x, MOON4.y, MOON4.r), c: '#f3eedb' }) },                    // the wheel -> the moon
+  { tc: T5, A: () => ({ P: circ(MOON4.x, MOON4.y, MOON4.r), c: '#f3eedb' }), B: () => ({ P: circ(SAM5[0], SAM5[1], SAM5[2]), c: SK.terra }) },                   // the moon -> tired Sam
+  { tc: T6, A: () => { const [x, y, r] = glowAt(); return { P: circ(x, y, r), c: SK.hilite }; }, B: () => ({ P: circ(SUN6.x, SUN6.y, SUN6.r), c: SK.hilite }) },   // THE PAYOFF: the glow -> the sun
+  { tc: T7, A: () => ({ P: circ(SUN6.x, SUN6.y, SUN6.r), c: SK.hilite }), B: () => ({ P: rrectPts(ROOM.win[0] - ROOM.win[2] / 2, ROOM.win[1] - ROOM.win[3] / 2, ROOM.win[2], ROOM.win[3], 8), c: '#dfeaf0' }) },   // the sun -> the window
+];
+
+// =====================================================================
+//  kit/morph.js — the renderer for pieces built from ERAS (scenes) joined by SHAPE MORPHS.
+//
+//  At each bridge time tc:
+//    shrink [tc-d, tc-m]      the old era is seen through a window shaped like the bridge object (STYLE.window),
+//                             shrinking onto the object while the backdrop fades to blank paper
+//    morph  [tc-m, tc+m]      on blank paper, the object's outline blends into its counterpart's
+//                             (both resampled by angle around their centroids; colour lerped). Hero-to-hero
+//                             bridges draw the hero itself with blended position, size and ray count.
+//    grow   [tc+m, tc+d]      the new era opens out of a window shaped like the counterpart
+//    d = the bridge's half-length (default 0.6s, so a bridge costs 1.2s), m = the morph's half (default 0.2s, or d/3 when d is set).
+//    Short pieces: { tc, d: 0.4 } (0.8s) or fewer bridges — see craft.md -> Transitions.
+//  Era boundaries WITHOUT a bridge are hard cuts (keep at most one: the slam).
+//
+//  The piece defines (in its head / src):
+//    ERA_LIST = [[t0, t1, () => drawScene()], ...]      scenes draw in world coords, call yearTag()/capStrip()
+//    ERA_BG   = ['#hex', ...]                          each era's dominant colour (for the fade to paper)
+//    BRIDGES  = [{ tc, A: () => shape, B: () => shape, d?, m? }]   shape = { P: points, c: '#hex' } or SP(x, y, r, rays)
+//    function pieceCam(era, t) { return null | CAM }   optional; use push() / bump() below
+//  Shapes are in each era's world coords; the bridge object must be in frame at tc (pull push-ins back first).
+//  The look comes from the style kit's STYLE hooks (paper, backdrop, window, blob, hero, post, ones):
+//  this file draws nothing itself, so the same piece structure works in any style.
+// =====================================================================
+// ---- cameras: CAM = { z, tx, ty }; camOf({ z, p, to }) puts world point p on screen point to
+const CAM0 = { z: 1, tx: 0, ty: 0 };
+const camOf = (c) => ({ z: c.z, tx: c.to[0] - c.z * c.p[0], ty: c.to[1] - c.z * c.p[1] });
+const camMix = (a, b, u) => ({ z: lerp(a.z, b.z, u), tx: lerp(a.tx, b.tx, u), ty: lerp(a.ty, b.ty, u) });
+// an eased push-in over [a, b] to cam, optionally pulled back over [oa, ob]
+function push(t, a, b, cam, oa, ob) { let u = EZ.io(seg(t, a, b)); if (oa != null) u *= 1 - EZ.io(seg(t, oa, ob)); return u > 0 ? camMix(CAM0, camOf(cam), u) : null; }
+// a zoom bump on every beat from t0, centred on point p (the hero keeps its screen spot)
+function bump(t, t0, p, amt = 0.3, every = 0.5) { return camOf({ z: 1 + amt * Math.exp(-mod(t - t0, every) * 7), p, to: p }); }
+function camAt(era, t) { return (typeof pieceCam === 'function' && pieceCam(era, t)) || CAM0; }
+const camPts = (P, c) => P.map(([x, y]) => [c.z * x + c.tx, c.z * y + c.ty]);
+// ---- bridge shapes
+function starPts(x, y, r, n, r0 = -Math.PI / 2, m = 96) {
+  const P = []; for (let i = 0; i < m; i++) { const a = i / m * TAU, k = 0.42 + 0.58 * (0.5 + 0.5 * Math.cos(n * (a - r0))) ** 3; P.push([x + Math.cos(a) * r * k, y + Math.sin(a) * r * k]); }
+  return P;
+}
+const SP = (x, y, r, n) => ({ spark: [x, y, r, n] });
+const shapeOf = (s) => (s.spark ? { P: (STYLE.heroPts || starPts)(...s.spark), c: STYLE.heroColor, spark: s.spark } : s);
+function byAngle(P, m = 96) {   // resample a closed outline to m points by angle around its centroid
+  const c = P.reduce((a, p) => [a[0] + p[0] / P.length, a[1] + p[1] / P.length], [0, 0]), Q = resample(P, true, 4), out = [];
+  for (let i = 0; i < m; i++) {
+    const a = -Math.PI + i / m * TAU; let best = null, bd = 1e9;
+    for (const q of Q) { let d = Math.atan2(q[1] - c[1], q[0] - c[0]) - a; d = Math.abs(Math.atan2(Math.sin(d), Math.cos(d))); const r = Math.hypot(q[0] - c[0], q[1] - c[1]); if (d < bd - 1e-4 || (Math.abs(d - bd) < 1e-4 && r > best[2])) { bd = d; best = [q[0], q[1], r]; } }
+    out.push([best[0], best[1]]);
+  }
+  return { P: out, c };
+}
+const mixHex = (a, b, u) => { const p = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)); const x = p(a), y = p(b); return `rgb(${x.map((v, i) => Math.round(lerp(v, y[i], u))).join(',')})`; };
+function maskK(P) {   // how far the window must scale about its centroid to cover the frame
+  const c = P.reduce((a, p) => [a[0] + p[0] / P.length, a[1] + p[1] / P.length], [0, 0]);
+  const rmin = Math.max(8, Math.min(...byAngle(P, 48).P.map((p) => Math.hypot(p[0] - c[0], p[1] - c[1]))));
+  const far = Math.max(...[[0, 0], [W, 0], [0, H], [W, H]].map((q) => Math.hypot(q[0] - c[0], q[1] - c[1])));
+  return { c, kmax: far / rmin * 1.1 };
+}
+const scaled = (P, c, k) => P.map(([x, y]) => [c[0] + (x - c[0]) * k, c[1] + (y - c[1]) * k]);
+// ---- layers and windows
+const LAYER = [];
+function layer(i) { if (!LAYER[i]) { const c = document.createElement('canvas'); c.width = W; c.height = H; LAYER[i] = c; } return LAYER[i]; }
+function renderEra(e, target) {   // draws era e into target; returns its overlay queue (year tag, caption)
+  const saved = ctx; ctx = target.getContext('2d');
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.filter = 'none'; ctx.setLineDash([]);
+  ctx.fillStyle = STYLE.paper; ctx.fillRect(0, 0, W, H);   // a clean sheet every frame: nothing carries over between frames
+  const cam = camAt(e, TT); ctx.setTransform(cam.z, 0, 0, cam.z, cam.tx, cam.ty);
+  DEFER = []; ERA_LIST[e][2](); const q = DEFER; DEFER = null;
+  ctx.restore(); ctx = saved;
+  return q;
+}
+function flush(q, e) { const keep = E0; E0 = ERA_LIST[e][0]; ctx.setTransform(1, 0, 0, 1, 0, 0); q.forEach((f) => f()); E0 = keep; }
+function shotAtFrame(fr) {
+  for (const s of TIMELINE.shots) if (fr >= Math.round(s.t0 * FPS) && fr < Math.round(s.t1 * FPS)) return s;
+  return TIMELINE.shots[TIMELINE.shots.length - 1];
+}
+const eraAt = (t) => ERA_LIST.findIndex(([a, b]) => t >= a - 1e-6 && t < b - 1e-6);
+// renderFrame(t, canvas, sub): sub = true draws the exact time t between frames (motion blur sub-frames, styles on 1s)
+function renderFrame(t, canvas, sub) {
+  const cv = canvas || document.getElementById('c');
+  ctx = cv.getContext('2d');
+  F = ((Math.floor(sub ? t * FPS + 1e-6 : Math.round(t * FPS)) % NFRAMES) + NFRAMES) % NFRAMES;
+  B = Math.floor(F / 2);
+  TT = (STYLE.ones ? (sub ? F + (t * FPS - Math.floor(t * FPS + 1e-6)) : F) : B * 2) / FPS;
+  // the era is picked by the real frame, so a cut on an odd frame (a 16th at 24fps) lands on that frame;
+  // on its first frame the new era is drawn at its own start time (motion stays on 2s inside it)
+  const s = shotAtFrame(F), e = Math.max(0, eraAt(F / FPS));
+  E0 = ERA_LIST[e][0];
+  if (TT < E0 - 1e-6) TT = E0;
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.setLineDash([]); ctx.filter = 'none';
+  SPARK_AT = null;
+  const bd = (r) => r.d ?? 0.6, bm = (r) => r.m ?? (r.d != null ? r.d / 3 : 0.2);
+  const tr = BRIDGES.find((r) => TT >= r.tc - bd(r) - 1e-6 && TT < r.tc + bd(r) - 1e-6);
+  if (!tr) {
+    const q = renderEra(e, layer(0)); ctx.drawImage(layer(0), 0, 0); flush(q, e);
+  } else {
+    const ea = eraAt(tr.tc - 0.01), eb = eraAt(tr.tc + 0.01);
+    const sa = shapeOf(tr.A()), sb = shapeOf(tr.B());
+    const PA = camPts(sa.P, camAt(ea, TT)), PB = camPts(sb.P, camAt(eb, TT));
+    const D = bd(tr), M = bm(tr);
+    if (TT < tr.tc - M) {
+      const u = EZ.i2(seg(TT, tr.tc - D, tr.tc - M)), { c, kmax } = maskK(PA), k = Math.exp(lerp(Math.log(kmax), 0, u));
+      STYLE.backdrop(mixHex(ERA_BG[ea], STYLE.paper, 0.5 + u * 0.5), { eraA: ea, eraB: eb, u, phase: 'shrink' });
+      const q = renderEra(ea, layer(0));
+      STYLE.window(scaled(PA, c, k), 'mA' + tr.tc, layer(0), { c: sa.c, u, phase: 'shrink', eraA: ea, eraB: eb });
+      flush(q, ea);
+    } else if (TT < tr.tc + M) {
+      const u = EZ.io(seg(TT, tr.tc - M, tr.tc + M));
+      STYLE.backdrop(STYLE.paper, { eraA: ea, eraB: eb, u, phase: 'morph' });
+      if (sa.spark && sb.spark) {
+        const ca = camAt(ea, TT), cb = camAt(eb, TT), [ax, ay] = camPts([sa.spark.slice(0, 2)], ca)[0], [bx, by] = camPts([sb.spark.slice(0, 2)], cb)[0];
+        STYLE.hero(lerp(ax, bx, u), lerp(ay, by, u), lerp(sa.spark[2] * ca.z, sb.spark[2] * cb.z, u), { rays: Math.round(lerp(sa.spark[3], sb.spark[3], u)), mood: 'wow', key: 'morphspark' });
+      } else {
+        const A2 = byAngle(PA), B2 = byAngle(PB), M = A2.P.map((p, i) => [lerp(p[0], B2.P[i][0], u), lerp(p[1], B2.P[i][1], u)]);
+        STYLE.blob(M, mixHex(sa.c, sb.c, u), 'morph' + tr.tc, u, { eraA: ea, eraB: eb, phase: 'morph' });
+        if (sb.spark && u > 0.6) STYLE.hero(...camPts([sb.spark.slice(0, 2)], camAt(eb, TT))[0], sb.spark[2] * clamp((u - 0.6) / 0.4), { rays: sb.spark[3], mood: 'wow', key: 'morphspark2' });
+      }
+    } else {
+      const u = EZ.o2(seg(TT, tr.tc + M, tr.tc + D)), { c, kmax } = maskK(PB), k = Math.exp(lerp(0, Math.log(kmax), u));
+      STYLE.backdrop(mixHex(STYLE.paper, ERA_BG[eb], u * 0.5), { eraA: ea, eraB: eb, u, phase: 'grow' });
+      const q = renderEra(eb, layer(0));
+      STYLE.window(scaled(PB, c, k), 'mB' + tr.tc, layer(0), { c: sb.c, u, phase: 'grow', eraA: ea, eraB: eb });
+      flush(q, eb);
+    }
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (STYLE.post) STYLE.post();
+  ctx.restore();
+  return s.id;
+}
+window.renderFrame = renderFrame;
+window.anchorAt = () => (SPARK_AT ? { x: SPARK_AT[0], y: SPARK_AT[1] } : null);
+
+// =====================================================================
+//  kit/board.js — the storyboard: every beat in TIMELINE.board drawn as a 9:16 key frame with its notes.
+//  The panels ARE the piece: each one is renderFrame(t) at the beat's key time, so an approved board
+//  carries straight into the video.  TIMELINE.board = [{ t, title, sound, next }]
+//  Render: node tools/storyboard.mjs <piece dir> [out.png] [panel numbers...]
+// =====================================================================
+function drawPanel(k) { renderFrame(TIMELINE.board[k].t, ctx.canvas); }
+function renderBoard() {
+  const BD = TIMELINE.board || [], COLS = 5, PW = 360, PH = Math.round(PW * H / W), GAP = 30, NOTE = 130, HEAD = 150;
+  const rows = Math.ceil(BD.length / COLS), bc = document.createElement('canvas');
+  bc.width = GAP + COLS * (PW + GAP); bc.height = HEAD + rows * (PH + NOTE + GAP);
+  const g = bc.getContext('2d'), SANS = '"Segoe UI", Arial, sans-serif';
+  g.fillStyle = '#2a211b'; g.fillRect(0, 0, bc.width, bc.height);
+  g.fillStyle = '#efe5cf'; g.font = `400 60px ${HAND}`; g.fillText(`${document.title}: storyboard`, GAP, 80);
+  g.font = `600 22px ${SANS}`; g.fillStyle = '#d9c9a8';
+  g.fillText(`${TIMELINE.duration}s · ${W}×${H} · ${TIMELINE.bpm} BPM · ${BD.length} beats. Thumbs up or down by panel number.`, GAP, 122);
+  const wrap = (str, x, y, maxW, lh) => { let line = ''; for (const w of str.split(' ')) { const t = line ? line + ' ' + w : w; if (g.measureText(t).width > maxW && line) { g.fillText(line, x, y); y += lh; line = w; } else line = t; } if (line) g.fillText(line, x, y); return y + lh; };
+  const pc = document.createElement('canvas'); pc.width = W; pc.height = H;
+  BD.forEach((b, k) => {
+    renderFrame(b.t, pc);
+    const x = GAP + (k % COLS) * (PW + GAP), y = HEAD + Math.floor(k / COLS) * (PH + NOTE + GAP);
+    g.drawImage(pc, x, y, PW, PH);
+    g.fillStyle = '#f0b27c'; g.font = `700 26px ${SANS}`; g.fillText(`${k + 1}`, x, y + PH + 32);
+    g.fillStyle = '#efe5cf'; g.font = `600 20px ${SANS}`;
+    let ttl = `${b.t.toFixed(1)}s · ${b.title || ''}`; while (ttl.length > 4 && g.measureText(ttl).width > PW - 44) ttl = ttl.slice(0, -2) + '…';   // fits the panel
+    g.fillText(ttl, x + 40, y + PH + 30);
+    g.font = `400 18px ${SANS}`; g.fillStyle = '#cdbd9c';
+    const yy = b.sound ? wrap('sound: ' + b.sound, x, y + PH + 58, PW, 22) : y + PH + 58;
+    if (b.next) { g.fillStyle = '#a8977a'; wrap('→ ' + b.next, x, yy + 2, PW, 22); }
+  });
+  return bc;
+}
+window.renderBoard = renderBoard; window.drawPanel = drawPanel;
+// =====================================================================
+//  kit/score-head.js — live preview (click to hear), noise/impulse/WAV helpers, and the synth.
+//  buildScore() opens here; the piece's score body follows (src/score.js), then kit/score-tail.js closes it.
+//  Helpers inside buildScore: pluck, noiseHit, sub, sweep, riser, chime, bass, blip, pad, drone, out, osc, env.
+//  Set `to = 'm'` (music bus) or `to = 's'` (sfx bus) before calling them. Notes: nz('D4').
+// =====================================================================
+// live preview: rAF on the 24fps grid; click to hear the score (?t=1.5 freezes a frame)
+const QS = new URLSearchParams(location.search);
+const LIVE = { audio: null, t0: 0, start: performance.now() };
+if (!QS.has('export')) {
+  const cv = document.getElementById('c');
+  if (QS.has('t')) renderFrame(parseFloat(QS.get('t')));
+  else {
+    const tick = () => {
+      const sec = LIVE.audio ? LIVE.audio.currentTime - LIVE.t0 : (performance.now() - LIVE.start) / 1000;
+      const t = ((sec % LOOP_T) + LOOP_T) % LOOP_T;
+      renderFrame(Math.floor(t * FPS) / FPS);
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  cv.addEventListener('click', async () => {
+    if (LIVE.audio || typeof buildScore !== 'function') return;
+    const ac = new AudioContext(), score = await buildScore(ac.sampleRate);
+    const buf = ac.createBuffer(2, score.left.length, score.sampleRate);
+    buf.copyToChannel(score.left, 0); buf.copyToChannel(score.right, 1);
+    const src = ac.createBufferSource(); src.buffer = buf; src.loop = true; src.connect(ac.destination);
+    LIVE.t0 = ac.currentTime + 0.05; src.start(LIVE.t0); LIVE.audio = ac;
+  });
+}
+
+const HZ = {
+  A1: 55.0, D2: 73.42, F2: 87.31, A2: 110.0, D3: 146.83, F3: 174.61, A3: 220.0, C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23,
+  Fs4: 369.99, A4: 440.0, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, Fs5: 739.99, A5: 880.0, D6: 1174.66, A6: 1760.0,
+};
+function makeNoise(ac, sec) {
+  const b = ac.createBuffer(1, Math.floor(sec * ac.sampleRate), ac.sampleRate), d = b.getChannelData(0), R = RNG('noise');
+  for (let i = 0; i < d.length; i++) d[i] = R.f() * 2 - 1;
+  return b;
+}
+function makeImpulse(ac, sec, decay) {
+  const n = Math.floor(sec * ac.sampleRate), b = ac.createBuffer(2, n, ac.sampleRate);
+  for (let c = 0; c < 2; c++) { const d = b.getChannelData(c), R = RNG('ir', c); for (let i = 0; i < n; i++) d[i] = (R.f() * 2 - 1) * Math.pow(1 - i / n, decay); }
+  return b;
+}
+function encodeWav(left, right, sr) {
+  const n = left.length, buf = new ArrayBuffer(44 + n * 4), v = new DataView(buf);
+  const ws = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  ws(0, 'RIFF'); v.setUint32(4, 36 + n * 4, true); ws(8, 'WAVE'); ws(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 2, true); v.setUint32(24, sr, true);
+  v.setUint32(28, sr * 4, true); v.setUint16(32, 4, true); v.setUint16(34, 16, true);
+  ws(36, 'da' + 'ta'); v.setUint32(40, n * 4, true);
+  let o = 44;
+  for (let i = 0; i < n; i++) { v.setInt16(o, Math.round(clamp(left[i], -1, 1) * 32767), true); v.setInt16(o + 2, Math.round(clamp(right[i], -1, 1) * 32767), true); o += 4; }
+  return new Uint8Array(buf);
+}
+
+
+const MIDI = (m) => 440 * 2 ** ((m - 69) / 12);
+const NOTE = { D2: 38, A2: 45, D3: 50, E3: 52, Fs3: 54, A3: 57, D4: 62, E4: 64, Fs4: 66, G4: 67, A4: 69, B4: 71, Cs5: 73, D5: 74, E5: 76, Fs5: 78, A5: 81, B5: 83, D6: 86, E6: 88, Fs6: 90, A6: 93 };
+// any note name: 'D4', 'Fs4' / 'F#4' (sharp), 'Bb3' (flat); the table above is the fast path
+function noteNum(n) {
+  if (NOTE[n] != null) return NOTE[n];
+  const m = /^([A-G])(s|#|b)?(-?\d)$/.exec(n); if (!m) throw new Error(`unknown note "${n}"`);
+  return 12 * (Number(m[3]) + 1) + { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (m[2] === 'b' ? -1 : m[2] ? 1 : 0);
+}
+const nz = (n) => MIDI(noteNum(n));
+async function buildScore(sampleRate = 48000, part = 'mix', normIn = null) {
+  const TAIL = 3.0, len = Math.ceil((LOOP_T + TAIL) * sampleRate);
+  const ac = new OfflineAudioContext(2, len, sampleRate);
+  const master = ac.createGain(); master.gain.value = 0.8;
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -16; comp.knee.value = 10; comp.ratio.value = 3.5; comp.attack.value = 0.004; comp.release.value = 0.2;
+  master.connect(comp); comp.connect(ac.destination);
+  const musicBus = ac.createGain(), sfxBus = ac.createGain();
+  musicBus.gain.value = part === 'sfx' ? 0 : 1; sfxBus.gain.value = part === 'music' ? 0 : 1;
+  musicBus.connect(master); sfxBus.connect(master);
+  // ducking + presence dip, driven by the narration (lines closer than 0.29s are merged)
+  const duck = ac.createGain(), dip = ac.createBiquadFilter();
+  dip.type = 'peaking'; dip.frequency.value = 2500; dip.Q.value = 1;
+  duck.connect(dip); dip.connect(musicBus);
+  const lines = [];
+  for (const n of TIMELINE.narration) { const L = lines[lines.length - 1]; if (L && n.t0 - L.t1 < 0.29) L.t1 = n.t1; else lines.push({ t0: n.t0, t1: n.t1 }); }
+  const DUCK = 10 ** (-3 / 20);
+  duck.gain.setValueAtTime(1, 0); dip.gain.setValueAtTime(0, 0);
+  for (const L of lines) {
+    duck.gain.setValueAtTime(1, Math.max(0, L.t0 - 0.1)); duck.gain.linearRampToValueAtTime(DUCK, L.t0);
+    duck.gain.setValueAtTime(DUCK, L.t1 + 0.03); duck.gain.linearRampToValueAtTime(1, L.t1 + 0.18);
+    dip.gain.setValueAtTime(0, Math.max(0, L.t0 - 0.1)); dip.gain.linearRampToValueAtTime(-6, L.t0);
+    dip.gain.setValueAtTime(-6, L.t1 + 0.03); dip.gain.linearRampToValueAtTime(0, L.t1 + 0.18);
+  }
+  const mkVerb = (dest, sec = 1.6, decay = 2.8, level = 0.3) => { const v = ac.createConvolver(); v.buffer = makeImpulse(ac, sec, decay); const g = ac.createGain(); g.gain.value = level; v.connect(g); g.connect(dest); return v; };
+  const verbs = { m: mkVerb(duck), s: mkVerb(sfxBus) }, shortVerb = verbs.m, longVerb = mkVerb(duck, 3.6, 1.6, 0.55);
+  const noise = makeNoise(ac, 3.0);
+  let to = 'm';   // which bus the helpers below write to
+
+  // the gain is silent until the envelope starts (a GainNode defaults to 1: a note whose oscillator starts first would click)
+  const env = (g, t, a, peak, d) => { g.gain.value = 0.0001; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); };
+  const out = (node, pan = 0, send = 0) => {
+    const p = ac.createStereoPanner(); p.pan.value = clamp(pan, -1, 1); node.connect(p); p.connect(to === 'm' ? duck : sfxBus);
+    if (send) { const s = ac.createGain(); s.gain.value = send; node.connect(s); s.connect(verbs[to]); }
+  };
+  const osc = (type, f, t, stop) => { const o = ac.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t); o.start(t); o.stop(stop); return o; };
+  function pluck(t, f, vel, pan = 0, dur = 0.32, bright = 3200, send = 0.25) {
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 2.5;
+    lp.frequency.setValueAtTime(bright, t); lp.frequency.exponentialRampToValueAtTime(380, t + dur);
+    const g = ac.createGain(); env(g, t, 0.003, vel, dur);
+    const g2 = ac.createGain(); g2.gain.value = 0.3;
+    osc('triangle', f, t, t + dur + 0.05).connect(lp);
+    osc('sine', f * 2.004, t, t + dur + 0.05).connect(g2); g2.connect(lp);
+    lp.connect(g); out(g, pan, send);
+  }
+  function noiseHit(t, dur, type, freq, q, vel, pan = 0, send = 0, sweepTo = 0) {
+    const src = ac.createBufferSource(); src.buffer = noise;
+    const f = ac.createBiquadFilter(); f.type = type; f.Q.value = q; f.frequency.setValueAtTime(freq, t);
+    if (sweepTo) f.frequency.exponentialRampToValueAtTime(sweepTo, t + dur);
+    const g = ac.createGain(); env(g, t, Math.min(0.004, dur * 0.3), vel, dur);
+    src.connect(f); f.connect(g); out(g, pan, send);
+    src.start(t, (t * 7.31) % 2.0); src.stop(t + dur + 0.05);
+  }
+  function sub(t, vel) {
+    const o = osc('sine', 120, t, t + 0.8); o.frequency.exponentialRampToValueAtTime(36, t + 0.3);
+    const g = ac.createGain(); env(g, t, 0.004, vel, 0.6); o.connect(g); out(g);
+    noiseHit(t, 0.07, 'lowpass', 1100, 0.7, vel * 0.45);
+  }
+  function sweep(t0, t1, vel, f0, f1, pan = 0) {
+    const src = ac.createBufferSource(); src.buffer = noise; src.loop = true;
+    const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 1.1;
+    f.frequency.setValueAtTime(f0, t0); f.frequency.exponentialRampToValueAtTime(f1, t1);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vel, t1 - 0.03); g.gain.linearRampToValueAtTime(0.0001, t1 + 0.005);
+    src.connect(f); f.connect(g); out(g, pan, 0.2); src.start(t0, (t0 * 3.1) % 1.0); src.stop(t1 + 0.05);
+  }
+  function riser(t0, t1, vel) {
+    const o = osc('sawtooth', 110, t0, t1 + 0.02); o.frequency.exponentialRampToValueAtTime(1320, t1);
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 6; lp.frequency.setValueAtTime(300, t0); lp.frequency.exponentialRampToValueAtTime(5000, t1);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vel, t1 - 0.01); g.gain.linearRampToValueAtTime(0.0001, t1 + 0.01);
+    o.connect(lp); lp.connect(g); out(g, 0, 0.3);
+    sweep(t0, t1, vel * 0.9, 400, 7000);
+  }
+  function chime(t, freqs, vel, pan = 0) {
+    freqs.forEach((f, i) => { const g = ac.createGain(), ti = t + i * 0.012; env(g, ti, 0.002, vel / (1 + i * 0.4), 1.3); osc('sine', f, ti, ti + 1.5).connect(g); out(g, pan + (i - 1) * 0.25, 0.6); });
+  }
+  function bass(t, f, vel) { const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 320; const g = ac.createGain(); env(g, t, 0.006, vel, 0.28); osc('triangle', f, t, t + 0.35).connect(lp); lp.connect(g); out(g); }
+  function blip(t, f0, f1, dur, vel, pan = 0) { const o = osc('sine', f0, t, t + dur + 0.05); o.frequency.exponentialRampToValueAtTime(f1, t + dur); const g = ac.createGain(); env(g, t, 0.002, vel, dur); o.connect(g); out(g, pan, 0.2); }
+
+  // ---- v2 instruments built from the helpers above
+  function pad(t0, t1, notes, peak, o = {}) {
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = o.cut ?? 1200; lp.Q.value = 0.7;
+    const g = ac.createGain(), hold = o.swellTo ?? peak;
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(peak, t0 + (o.att ?? 0.4));
+    if (o.swellTo) g.gain.linearRampToValueAtTime(o.swellTo, o.swellAt);
+    g.gain.setValueAtTime(hold, t1 - (o.rel ?? 0.3)); g.gain.exponentialRampToValueAtTime(0.0001, t1);
+    notes.forEach((n, i) => { for (const det of [-7, 7]) { const oo = osc(o.type ?? 'sawtooth', nz(n), t0, t1 + 0.05); oo.detune.value = det + i; oo.connect(lp); } });
+    lp.connect(g); out(g, o.pan ?? 0, o.send ?? 0.4);
+  }
+  function drone(t0, t1, f, peak, o = {}) {
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(peak, t0 + (o.att ?? 0.5));
+    g.gain.setValueAtTime(peak, t1 - (o.rel ?? 0.4)); g.gain.exponentialRampToValueAtTime(0.0001, t1);
+    osc('sine', f, t0, t1 + 0.05).connect(g); out(g, 0, 0);
+  }
+  const claudeMotif = (t, notes, vel) => notes.forEach(([n, dt], i) => pluck(t + dt, nz(n), vel, -0.15 + i * 0.1, 0.6, 1300, 0.35));
+  const childMotif = (t, notes, vel, bright = 5200, send = 0.3) => notes.forEach(([n, dt], i) => pluck(t + dt, nz(n), vel, 0.2 - i * 0.1, 0.32, bright, send));
+  // SCORE BODY — The Glowing Rectangle (inside buildScore(); see kit/score-head.js)
+  // the arc: a quiet night hum -> a pluck per swipe -> a groove that builds through the brain -> busiest at night
+  // -> dead silence after "scattered focus" while the tablet goes face-down -> the loudest hit as the glow becomes
+  // the sun -> warm and flat under "the good news" -> Sam's rising fifth, fading, at the end.
+  const T = TIMELINE, cu = T.cues, R = RNG('score');
+  const [T1, T2, T3, T4, T5, T6, T7] = T.morphs, END = T.duration, STOP = VL('cost').t1 + 0.05;
+  const FIG = [['D4', 'A4', 'F4', 'A4', 'D5', 'A4', 'F4', 'A4'], ['C4', 'G4', 'E4', 'G4', 'C5', 'G4', 'E4', 'G4'],
+    ['Bb3', 'F4', 'D4', 'F4', 'Bb4', 'F4', 'D4', 'F4'], ['A3', 'E4', 'Cs4', 'E4', 'A4', 'E4', 'Cs4', 'E4']];
+  const ROOTS = ['D2', 'C2', 'Bb1', 'A1'];
+  const SAM = (t, vel, notes = [['D4', 0], ['A4', E8]]) => notes.forEach(([n, dt], i) => pluck(t + dt, nz(n), vel, 0.1 - i * 0.1, 0.6, 2600, 0.35));
+  const each = (t0, t1, step, fn) => { for (let k = 0; t0 + k * step < t1 - 1e-6; k++) fn(t0 + k * step, k); };
+
+  // ================= MUSIC =================
+  to = 'm';
+  // night hook: a low hum and Sam's motif
+  pad(0.0, T2 + 0.2, ['D3', 'A3', 'F4'], 0.03, { type: 'triangle', cut: 750, att: 0.6, rel: 0.4 });
+  drone(0.0, T2 + 0.2, nz('D2'), 0.035, { att: 0.8, rel: 0.4 });
+  SAM(1.0, 0.12);
+  // the swipes: a pluck per swipe, the third one (WOW) a bright chime
+  [T1 + 0.55, T1 + 1.35, T1 + 2.05, T1 + 2.75].forEach((t, i) => (i === 2 ? chime(t + 0.25, [nz('A5'), nz('D6'), nz('F6')], 0.06, 0.2) : pluck(t + 0.25, nz(['F4', 'E4', '', 'D4'][i]), 0.08, -0.2, 0.4, 1800, 0.3)));
+  // the brain -> the brakes -> the night: 8ths, then 16ths, bass on the beat, building
+  pad(T2, T5, ['D3', 'A3', 'E4'], 0.028, { cut: 950, att: 0.4, swellTo: 0.036, swellAt: T5 - 0.2, rel: 0.1, send: 0.3 });
+  each(T2, T5, E8, (t, k) => {
+    const sec = t < T3 ? 0 : t < T4 ? 1 : 2, fig = FIG[Math.floor(k / 8) % 4], acc = k % 2 === 0 ? 1 : 0.75;
+    pluck(t, nz(fig[k % 8]), (0.05 + sec * 0.006) * acc, Math.sin(k * 0.9) * 0.3, 0.3, 2800 + sec * 500, 0.2);
+    if (k % 2 === 0) bass(t, nz(ROOTS[Math.floor(k / 8) % 4]), 0.13 + sec * 0.01);
+    if (sec >= 1 && k % 4 === 0) sub(t, 0.04 + sec * 0.006);
+  });
+  // the peak: night into the cost — 16ths, hats; stops dead on "focus" (dry in the last beat)
+  pad(T5 - 0.1, STOP, ['D3', 'A3', 'E4', 'A4'], 0.03, { cut: 1300, att: 0.1, rel: 0.02, send: 0.08 });
+  each(T4, STOP, E16, (t, k) => {
+    if (t < T5 && k % 2) return;   // night: 8th hats; the cost: 16ths
+    const dry = t >= STOP - 0.5 ? 0.02 : 0.1;
+    noiseHit(t, 0.016, 'highpass', 8500, 0.7, k % 2 ? 0.016 : 0.026, k % 2 ? 0.3 : -0.3, dry);
+  });
+  each(T5, STOP, E16, (t, k) => {
+    const fig = FIG[Math.floor(k / 8) % 4], dry = t >= STOP - 0.5 ? 0.02 : 0.12;
+    pluck(t, nz(fig[k % 8]), 0.06 * (k % 4 === 0 ? 1.25 : 0.9), Math.sin(k * 0.9) * 0.4, t >= STOP - 0.25 ? 0.15 : 0.26, 5200, dry);
+    if (k % 2 === 0) bass(t, nz(ROOTS[Math.floor(k / 8) % 4]), 0.15);
+    if (k % 4 === 0) sub(t, 0.06);
+  });
+  // [silence: STOP -> T6, the tablet goes face-down and the glow lifts]
+  // THE PAYOFF: the glow becomes the sun — a chord stab + sub on the hit, then a flat warm chord
+  ['D3', 'A3', 'D4', 'Fs4', 'A4', 'D5'].forEach((n, i) => pluck(T6 + i * 0.006, nz(n), 0.36, (i - 2.5) * 0.15, 0.7, 5200, 0.4));
+  pad(T6, T6 + 0.4, ['D3', 'A3', 'D4', 'Fs4', 'A4', 'D5'], 0.5, { cut: 3600, att: 0.008, rel: 0.35, send: 0.3 });
+  sub(T6, 0.3);
+  pad(T6 + 0.35, T7 + 0.2, ['D3', 'A3', 'D4', 'Fs4', 'A4'], 0.04, { cut: 1200, att: 0.3, rel: 0.3, send: 0.5 });
+  drone(T6 + 0.35, T7 + 0.2, nz('D2'), 0.05, { att: 0.2, rel: 0.3 });
+  [cu.sleep, cu.play, cu.faces].forEach((t, i) => chime(t + 0.05, [nz(['Fs5', 'A5', 'D6'][i])], 0.04, -0.2 + i * 0.2));   // the three ticks
+  each(T6 + 1.0, T7, E8, (t, k) => { if (k % 2 === 0 || k % 8 === 5) pluck(t, nz(['D4', 'Fs4', 'A4', 'D5', 'A4', 'Fs4', 'E4', 'Fs4'][k % 8]), 0.04, Math.sin(k) * 0.3, 0.35, 2600, 0.25); if (k % 4 === 0) bass(t, nz(Math.floor(k / 8) % 2 ? 'A1' : 'D2'), 0.11); });
+  // balance: back to the opening hum, in major, Sam's motif, fading
+  pad(T7, END, ['D3', 'A3', 'Fs4'], 0.032, { type: 'triangle', cut: 800, att: 0.3, rel: 1.2 });
+  SAM(cu.balance + 0.6, 0.14, [['D4', 0], ['A4', E8], ['D5', BEAT]]);
+
+  // ================= SFX =================
+  to = 's';
+  const scratch = (t0, t1, vel = 0.025) => { for (let t = t0; t < t1 - 1e-6; t += E16) noiseHit(t + 0.01, 0.1, 'bandpass', 2800 + R.n(500), 1.4, vel * (0.7 + R.f() * 0.5), 0.2); };
+  // morph whooshes (not into the payoff: that one happens in silence)
+  [T1, T2, T3, T4, T5, T7].forEach((t) => sweep(t - 0.5, t, 0.01, 500, 2600, 0));
+  // swipes: a soft flick each
+  [T1 + 0.55, T1 + 1.35, T1 + 2.05, T1 + 2.75].forEach((t) => noiseHit(t, 0.12, 'bandpass', 1800, 1.2, 0.04, 0.2, 0, 4200));
+  // the brain draws on; the brakes' pencil; captions written on
+  scratch(T2 + 0.1, T2 + 0.7); scratch(T3 + 0.5, T3 + 1.8, 0.02);
+  // the tablet goes face-down: one soft tap in the silence (quiet on purpose)
+  noiseHit(cu.facedown + 0.25, 0.05, 'lowpass', 600, 0.8, 0.012, 0);
+  // =====================================================================
+  //  kit/score-tail.js — render, fold the tail over the loop point, loudness stage
+  //  (RMS-normalise to -17 dBFS, look-ahead limiter at -1 dBFS; stems share the mix gain curve)
+  // =====================================================================
+  const buf = await ac.startRendering();
+  // fold the tail over the loop point so the loop is seamless
+  const N = Math.round(LOOP_T * sampleRate), L = new Float32Array(N), Rr = new Float32Array(N);
+  const c0 = buf.getChannelData(0), c1 = buf.getChannelData(1);
+  for (let i = 0; i < N; i++) { L[i] = c0[i] + (i + N < len ? c0[i + N] : 0); Rr[i] = c1[i] + (i + N < len ? c1[i + N] : 0); }
+  // loudness for a phone (subagents-short): RMS-normalise to -17 dBFS, then a look-ahead limiter at -1 dBFS.
+  // Stems reuse the mix's gain and gain curve, so they sum back to the mix.
+  let k = normIn?.k, g = normIn?.g;
+  if (!g) {
+    let sum = 0; for (let i = 0; i < N; i++) sum += (L[i] * L[i] + Rr[i] * Rr[i]) / 2;
+    k = 10 ** (-17 / 20) / Math.sqrt(sum / N || 1e-12);
+    const ceil = 0.89; g = new Float32Array(N);
+    for (let i = 0; i < N; i++) { const p = Math.max(Math.abs(L[i]), Math.abs(Rr[i])) * k; g[i] = p > ceil ? ceil / p : 1; }
+    const att = Math.exp(-1 / (0.0015 * sampleRate)), rel = Math.exp(-1 / (0.09 * sampleRate));
+    for (let i = N - 2; i >= 0; i--) g[i] = Math.min(g[i], 1 - (1 - g[i + 1]) * att);
+    let r = 1; for (let i = 0; i < N; i++) { r = Math.min(g[i], 1 - (1 - r) * rel); g[i] = r; }
+  }
+  for (let i = 0; i < N; i++) { L[i] *= k * g[i]; Rr[i] *= k * g[i]; }
+  return { left: L, right: Rr, sampleRate, norm: { k, g } };
+}
+function wavB64(s) {
+  const bytes = encodeWav(s.left, s.right, s.sampleRate);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+async function renderAudioWav() { return wavB64(await buildScore(48000, 'mix')); }
+async function renderAudioStems() {
+  const mix = await buildScore(48000, 'mix');
+  const music = await buildScore(48000, 'music', mix.norm), sfx = await buildScore(48000, 'sfx', mix.norm);
+  return { music: wavB64(music), sfx: wavB64(sfx) };
+}
+window.renderAudioWav = renderAudioWav;
+window.renderAudioStems = renderAudioStems;
+</script>
+</body>
+</html>

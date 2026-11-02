@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Glowing Rectangle</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #1d1a17; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; }
+  canvas { height: min(100vh, calc(100vw * 16 / 9)); width: auto; aspect-ratio: 9 / 16; display: block; cursor: pointer; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+"use strict";
+// =====================================================================
+//  THE GLOWING RECTANGLE — 9:16, ~46s, 24fps, voice-led. How screen time works on a kid's brain:
+//  Sam's tablet glow travels into the brain (the chase, the unfinished brakes, the lost sleep), then the
+//  glow lifts off the face-down tablet and becomes the morning sun. Yellow = the screen's glow, and only that
+//  (plus the one highlighted word per caption). Terracotta = Sam.
+//  The voice is the clock: every era boundary sits in the pause between two lines (VOICE, tools/voice.mjs).
+// =====================================================================
+const FPS = 24, W = 1080, H = 1920;
+const BPM = 120, BEAT = 60 / BPM, E8 = BEAT / 2, E16 = BEAT / 4;
+const VL = (id) => VOICE.lines.find((l) => l.id === id);
+// when the n-th (1-based) word starting with `word` in line `id` begins
+function VW(id, word, n = 1) {
+  const L = VL(id), w = word.toLowerCase();
+  const hits = L.words.filter((x) => x.w.toLowerCase().replace(/[^a-z']/g, '').startsWith(w));
+  return (hits[n - 1] || hits[0] || { t0: L.t0 }).t0;
+}
+const gap = (a, b) => (VL(a).t1 + VL(b).t0) / 2;   // the middle of the pause between two lines
+const DURATION = Math.round(VOICE.duration * FPS) / FPS;
+const NFRAMES = Math.round(DURATION * FPS);
+const LOOP_T = NFRAMES / FPS;
+const SAFE = { top: 240, bottom: 420, right: 140 };
+const HAND = '"Ink Free", "Segoe Print", "Bradley Hand", "Comic Sans MS", "Chalkboard SE", cursive';
+const CX = 500;
+
+// ---- the clock: era boundaries in the pauses; the payoff (glow -> sun) in the silence after "scattered focus"
+const T1 = gap('open', 'swipe'), T2 = gap('swipe', 'dopa'), T3 = gap('dopa', 'brake'), T4 = gap('brake', 'night');
+const T5 = gap('night', 'cost'), T6 = VL('cost').t1 + 1.25, T7 = gap('good', 'end');
+const ERA_T = [0, T1, T2, T3, T4, T5, T6, T7, DURATION];
+const ERA_FN = [() => sceneRoom(false), () => sceneSwipe(), () => sceneDopa(), () => sceneBrakes(), () => sceneNight(), () => sceneCost(), () => sceneMorning(), () => sceneRoom(true)];
+const ERA_LIST = ERA_FN.map((f, i) => [ERA_T[i], ERA_T[i + 1], f]);
+const SHOTS = [
+  ['room', 'night: Sam hunched over a glowing tablet'],
+  ['swipe', 'inside the screen: every swipe a tiny gamble'],
+  ['dopa', 'the brain: dopamine fires for the chase'],
+  ['brakes', 'the brakes (prefrontal cortex) still in pencil'],
+  ['night', 'bedtime: screen light holds melatonin back'],
+  ['cost', 'the cost: tired, scattered; the tablet goes face-down'],
+  ['morning', 'the glow becomes the sun: sleep, play, real faces'],
+  ['balance', 'the room again, daylight: balance is the skill'],
+];
+const TIMELINE = {
+  width: W, height: H, fps: FPS, bpm: BPM, duration: DURATION, frames: NFRAMES, loop: LOOP_T, safe: SAFE,
+  format: 'morph-chain',
+  shots: SHOTS.map(([key, title], i) => ({ id: i + 1, key, era: i, t0: ERA_T[i], t1: ERA_T[i + 1], title })),
+  cuts: [],
+  morphs: [T1, T2, T3, T4, T5, T6, T7],
+  cues: {
+    payoff: T6, facedown: VL('cost').t1 + 0.35,
+    sleep: VW('good', 'sleep'), play: VW('good', 'play'), faces: VW('good', 'faces'),
+    gamble: VW('swipe', 'gamble'), chase: VW('dopa', 'chase'), prize: VW('dopa', 'prize'),
+    enough: VW('brake', 'enough'), melatonin: VW('night', 'melatonin'), sensitive: VW('night', 'sensitive'),
+    balance: VW('end', 'balance'),
+  },
+  acts: [
+    { name: '1 Hook', role: 'build', t0: 0, t1: T2 },
+    { name: '2 Inside the brain', role: 'journey', t0: T2, t1: T5 },
+    { name: '3 The cost', role: 'peak', t0: T5, t1: VL('cost').t1 + 0.05 },
+    { name: '4 Silence', role: 'silence', t0: VL('cost').t1 + 0.05, t1: T6 - 0.02 },
+    { name: '5 Morning', role: 'gift', t0: T6 - 0.02, t1: T7 },
+    { name: '6 Balance', role: 'goodbye', t0: T7, t1: DURATION },
+  ],
+  board: [
+    { t: T1 - 2.6, title: '1 Sam + the glowing rectangle', sound: 'quiet hum', next: 'push in; the tablet becomes the phone screen' },
+    { t: T2 - 0.7, title: '2 every swipe a gamble', sound: 'a pluck per swipe', next: 'the screen becomes the brain' },
+    { t: T3 - 1.9, title: '3 dopamine: the chase', sound: 'groove builds', next: 'the front of the brain becomes a wheel' },
+    { t: T4 - 0.9, title: '4 the brakes, still in pencil', sound: 'groove', next: 'the wheel becomes the moon' },
+    { t: T5 - 2.0, title: '5 night: melatonin waits', sound: 'busiest', next: 'the moon becomes tired Sam' },
+    { t: T6 - 0.65, title: '6 the cost; tablet face-down', sound: 'SILENCE', next: 'the glow lifts off and becomes the sun' },
+    { t: T7 - 1.7, title: '7 morning: sleep, play, faces', sound: 'LOUDEST hit, warm swell', next: 'the sun becomes the window' },
+    { t: DURATION - 1.2, title: '8 balance is the skill', sound: 'fades', next: 'back to the start' },
+  ],
+  narration: VOICE.lines.map((l) => ({ t0: l.t0, t1: l.t1, text: l.text })),
+};
+window.TIMELINE = TIMELINE;

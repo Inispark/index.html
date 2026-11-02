@@ -1,0 +1,31 @@
+{
+  "name": "screentime",
+  "title": "The Glowing Rectangle",
+  "format": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 24,
+    "bpm": 120,
+    "duration": 46.1,
+    "frames": 1106
+  },
+  "storyFormat": "morph chain, voice-led (8 eras, 7 shape morphs)",
+  "style": "sketchbook",
+  "voice": {
+    "file": "voice/voice.wav",
+    "music": -12
+  },
+  "review": {
+    "safe": {
+      "top": 240,
+      "bottom": 420,
+      "right": 140
+    },
+    "refs": {}
+  },
+  "scenes": [
+    "src/scenes.js",
+    "src/scenes-brain.js",
+    "src/scenes-rest.js"
+  ]
+}
