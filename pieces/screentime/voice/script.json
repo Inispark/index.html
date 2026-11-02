@@ -6,49 +6,49 @@
       "id": "open",
       "text": "Meet Sam. About five hours a day, Sam's world fits in a glowing rectangle.",
       "after": 0.5,
-      "file": "voice/open.mp3"
+      "file": "open.mp3"
     },
     {
       "id": "swipe",
       "text": "Every swipe is a tiny gamble. Will the next one be good?",
       "after": 0.45,
-      "file": "voice/swipe.mp3"
+      "file": "swipe.mp3"
     },
     {
       "id": "dopa",
       "text": "That not-knowing releases dopamine, the brain's \"want more\" signal. It fires for the chase, not the prize.",
       "after": 0.5,
-      "file": "voice/dopa.mp3"
+      "file": "dopa.mp3"
     },
     {
       "id": "brake",
       "text": "The part that says \"enough\", the prefrontal cortex, keeps wiring until around age twenty-five.",
       "after": 0.5,
-      "file": "voice/brake.mp3"
+      "file": "brake.mp3"
     },
     {
       "id": "night",
       "text": "At night, screen light tells the body it's still day. Melatonin, the sleep signal, waits. And kids' eyes are extra sensitive.",
       "after": 0.45,
-      "file": "voice/night.mp3"
+      "file": "night.mp3"
     },
     {
       "id": "cost",
       "text": "Less sleep. Scattered focus.",
       "after": 2.2,
-      "file": "voice/cost.mp3"
+      "file": "cost.mp3"
     },
     {
       "id": "good",
       "text": "The good news? Young brains are built to change. Sleep, play, and real faces rebuild them.",
       "after": 0.5,
-      "file": "voice/good.mp3"
+      "file": "good.mp3"
     },
     {
       "id": "end",
       "text": "Screens aren't poison. They're powerful. Balance is the skill.",
       "after": 0.3,
-      "file": "voice/end.mp3"
+      "file": "end.mp3"
     }
   ]
 }
