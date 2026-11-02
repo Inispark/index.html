@@ -17,3 +17,4 @@
 | 6 cost | PASS |
 | 7 morning | PASS |
 | 8 balance | PASS |
+- Voice: ElevenLabs, Jennica (eleven_v4), one take per line, 635 credits total; the free queue let ~1 take through every few minutes. Take paths in script.json are relative to voice/ (a "voice/x.mp3" path silently fell back to the scratch voice). Final: 50.2s; narration PASS, story arc 6/6, text PASS, dead beats PASS, loudest 36.0s after 1.1s silence, −14.8 LUFS.

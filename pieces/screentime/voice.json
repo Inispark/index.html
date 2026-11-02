@@ -1,5 +1,5 @@
 {
- "duration": 49.4,
+ "duration": 50.186,
  "lead": 1,
  "tail": 2,
  "lines": [
@@ -658,61 +658,61 @@
    "id": "end",
    "text": "Screens aren't poison. They're powerful. Balance is the skill.",
    "t0": 43.745,
-   "t1": 47.4,
-   "take": "voice/end.scratch.wav",
+   "t1": 48.186,
+   "take": "voice/end.mp3",
    "words": [
     {
      "w": "Screens",
      "t0": 43.745,
-     "t1": 44.249,
+     "t1": 44.358,
      "est": true
     },
     {
      "w": "aren't",
-     "t0": 44.249,
-     "t1": 44.627,
+     "t0": 44.358,
+     "t1": 44.817,
      "est": true
     },
     {
      "w": "poison.",
-     "t0": 44.627,
-     "t1": 45.068,
+     "t0": 44.817,
+     "t1": 45.353,
      "est": true
     },
     {
      "w": "They're",
-     "t0": 45.068,
-     "t1": 45.509,
+     "t0": 45.353,
+     "t1": 45.889,
      "est": true
     },
     {
      "w": "powerful.",
-     "t0": 45.509,
-     "t1": 46.077,
+     "t0": 45.889,
+     "t1": 46.578,
      "est": true
     },
     {
      "w": "Balance",
-     "t0": 46.077,
-     "t1": 46.581,
+     "t0": 46.578,
+     "t1": 47.191,
      "est": true
     },
     {
      "w": "is",
-     "t0": 46.581,
-     "t1": 46.77,
+     "t0": 47.191,
+     "t1": 47.42,
      "est": true
     },
     {
      "w": "the",
-     "t0": 46.77,
-     "t1": 47.022,
+     "t0": 47.42,
+     "t1": 47.727,
      "est": true
     },
     {
      "w": "skill.",
-     "t0": 47.022,
-     "t1": 47.4,
+     "t0": 47.727,
+     "t1": 48.186,
      "est": true
     }
    ]
